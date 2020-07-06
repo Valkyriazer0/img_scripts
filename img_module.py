@@ -4,6 +4,7 @@ import os
 import math
 from sklearn import preprocessing
 
+# hello
 
 # 画像を正方形にトリミング（と保存）
 def trim(img_name, kernel_size, output_path=None):
