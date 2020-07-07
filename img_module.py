@@ -18,13 +18,13 @@ ix, iy, box_width, box_height = -1, -1, 0, 0
 box = [ix, iy, box_width, box_height]
 
 
-def file_path_select(message_box_name, message):
+def file_path_select(message_box_name, message, file_type_name="*.jpg;*.png;*.bmp;.jpeg"):
     """
     単一or複数のファイル選択ダイアログの表示
     """
     root = tkinter.Tk()
     root.withdraw()
-    file_type = [("", "*")]
+    file_type = [("", file_type_name)]
     initial_dir = os.path.abspath(os.path.dirname(__file__))
     tkinter.messagebox.showinfo(message_box_name, message)
     file_path = tkinter.filedialog.askopenfilenames(filetypes=file_type, initialdir=initial_dir)
