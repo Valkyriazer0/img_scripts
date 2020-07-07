@@ -11,8 +11,9 @@ def trim(img_name, kernel_size, output_path=None):
     width = height
     height_margin = (img_name.shape[0] - height) // 2
     width_margin = (img_name.shape[1] - width) // 2
-    trimming_img = img_name[height_margin:(img_name.shape[0] - height_margin), width_margin:(img_name.shape[1] - width_margin)]
-    if output_path != None:
+    trimming_img = img_name[height_margin:(img_name.shape[0] - height_margin),
+                            width_margin:(img_name.shape[1] - width_margin)]
+    if output_path is not None:
         cv2.imwrite(os.path.join(str(output_path) + "/" + "trimming.png"), trimming_img)
     return trimming_img
 
@@ -52,51 +53,51 @@ def bokeh_detection(number_of_kernel, input_path, output_path):
 # グローバル変数
 drawing = False
 complete_region = False
-ix, iy, width, height = -1, -1, 0, 0
-box = [ix, iy, width, height]
+ix, iy, box_width, box_height = -1, -1, 0, 0
+box = [ix, iy, box_width, box_height]
 
 
 # マウスコールバック
 def my_mouse_callback(event, x, y, flags, param):
-    global ix,iy,width,height,box,drawing,complete_region
+    global ix, iy, box_width, box_height, box, drawing, complete_region
 
     if event == cv2.EVENT_MOUSEMOVE:
-        if(drawing == True):
-            width = x - ix
-            height = y - iy
+        if drawing:
+            box_width = x - ix
+            box_height = y - iy
 
     elif event == cv2.EVENT_LBUTTONDOWN:  # マウス左押された時
         drawing = True
 
         ix = x
         iy = y
-        width = 0
-        height = 0
+        box_width = 0
+        box_height = 0
 
-    elif event == cv2.EVENT_LBUTTONUP:    # マウス左離された時
+    elif event == cv2.EVENT_LBUTTONUP:  # マウス左離された時
         drawing = False
         complete_region = True
 
-        if(width < 0):
-            ix += width
-            width *= -1
-        if(height < 0):
-           iy += height
-           height *= -1
+        if box_width < 0:
+            ix += box_width
+            box_width *= -1
+        if box_height < 0:
+            iy += box_height
+            box_height *= -1
 
-    box = [ix, iy, width, height]         # 切り取り範囲格納
+    box = [ix, iy, box_width, box_height]  # 切り取り範囲格納
     return
 
 
 # ROIの設定（とROI画像の保存）
 def roi_select(img_name, output_path=None):
-    global ix, iy, width, height, box, drawing, complete_region
+    global ix, iy, box_width, box_height, box, drawing, complete_region
 
     roi_image = []
     source_window = "draw_rectangle"
     roi_window = "region_of_image"
 
-    img_copy = img_name.copy()                # 画像コピー
+    img_copy = img_name.copy()  # 画像コピー
 
     cv2.namedWindow(source_window)
     cv2.setMouseCallback(source_window, my_mouse_callback)
@@ -104,21 +105,21 @@ def roi_select(img_name, output_path=None):
     while True:
         cv2.imshow(source_window, img_copy)
 
-        if drawing:             # 左クリック押されてたら
-            img_copy = img_name.copy()    # 画像コピー
-            cv2.rectangle(img_copy, (ix, iy), (ix + width, iy + height),(0,255,0),2)  # 矩形を描画
+        if drawing:  # 左クリック押されてたら
+            img_copy = img_name.copy()  # 画像コピー
+            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (0, 255, 0), 2)  # 矩形を描画
 
         if complete_region:  # 矩形の選択が終了したら
             complete_region = False
 
-            roi_image = img_name[iy:iy+height, ix:ix+width]  # 元画像から選択範囲を切り取り
-            cv2.imshow(roi_window, roi_image)          # 切り取り画像表示
+            roi_image = img_name[iy:iy + box_height, ix:ix + box_width]  # 元画像から選択範囲を切り取り
+            cv2.imshow(roi_window, roi_image)  # 切り取り画像表示
 
         # キー操作
         k = cv2.waitKey(1) & 0xFF
-        if k == 27:          # esc押されたら終了
+        if k == 27:  # esc押されたら終了
             break
-        elif k == ord('s') and output_path is not None:   # 's'押されたら画像を保存
+        elif k == ord('s') and output_path is not None:  # 's'押されたら画像を保存
             cv2.imwrite(os.path.join(str(output_path) + "/" + "roi.png"), roi_image)
             break
 
