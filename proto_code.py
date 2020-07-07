@@ -1,13 +1,18 @@
+"""本スクリプトの説明
+   関数や処理のプロトタイプを作成するスクリプト
+"""
 import cv2
-import math
 import numpy as np
 
 
 img = cv2.imread(r'C:\Users\zer0\Downloads\DSC_9684.JPG')
 
 
-def getCircle(frame, lower_color, upper_color):
-    MIN_RADIUS = 25
+def get_circle(frame, lower_color, upper_color):
+    """
+    円を検出する
+    """
+    min_radius = 25
 
     # HSVによる画像情報に変換
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -38,7 +43,7 @@ def getCircle(frame, lower_color, upper_color):
         radius = int(radius)
 
         # 円が小さすぎたら円を検出していないとみなす
-        if radius < MIN_RADIUS:
+        if radius < min_radius:
             return None
         else:
             return center, radius
@@ -53,7 +58,7 @@ if __name__ == '__main__':
     while True:
         # 赤色の円を抽出する
         frame = cap.read()[1]
-        getframe = getCircle(frame, np.array([130, 80, 80]), np.array([200, 255, 255]))
+        getframe = get_circle(frame, np.array([130, 80, 80]), np.array([200, 255, 255]))
 
         if getframe is not None:
             # 見つかった円の上に青い円を描画
