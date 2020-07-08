@@ -2,6 +2,8 @@
   <dictionary name="zer0">
     <words>
       <w>bokeh</w>
+      <w>imgs</w>
+      <w>ndarray</w>
     </words>
   </dictionary>
 </component>

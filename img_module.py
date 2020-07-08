@@ -1,9 +1,10 @@
 """本モジュールの説明
-   画像処理に使用する関数群
+   画像処理に使用する種々の関数群
 """
 import cv2
 import numpy as np
 import os
+import sys
 import math
 import tkinter
 import tkinter.filedialog
@@ -21,6 +22,16 @@ box = [ix, iy, box_width, box_height]
 def input_file_path_select(file_type_name="*.jpg;*.png;*.bmp;.jpeg"):
     """
     単一or複数のファイル選択ダイアログの表示
+
+    Parameters
+    ----------
+    file_type_name : str
+        ファイル形式の選択
+
+    Returns
+    -------
+    file_path_list : list
+        ファイルパス
     """
     root = tkinter.Tk()
     root.withdraw()
@@ -32,9 +43,21 @@ def input_file_path_select(file_type_name="*.jpg;*.png;*.bmp;.jpeg"):
     return file_path_list
 
 
-def directory_path_select(io_type: "input=1, output=0") -> int:
+def directory_path_select(io_type):
     """
     ディレクトリ選択ダイアログの表示
+
+    Parameters
+    ----------
+    io_type : int
+        入出力の設定
+    io_type = 1 入力
+    io_type = 0 出力
+
+    Returns
+    -------
+    directory_path : str
+        ファイルパス
     """
     root = tkinter.Tk()
     root.withdraw()
@@ -45,13 +68,75 @@ def directory_path_select(io_type: "input=1, output=0") -> int:
     elif io_type == 0:
         tkinter.messagebox.showinfo("出力ファイルを保存するディレクトリの選択",
                                     "出力ファイルを保存するディレクトリを選択してください")
+    else:
+        print("入出力の設定を確認してください")
+        sys.exit(1)
     directory_path = tkinter.filedialog.askdirectory(initialdir=initial_dir)
     return directory_path
+
+
+def img_transform(img_name, flip=None, scale=1, rotate=0):
+    """
+    画像の線形変換
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    flip : int
+        画像の反転
+    flip = 0 x軸を中心に反転
+    flip > 0 y軸を中心に反転
+    flip < 0 点対称に反転
+    scale : int
+        画像の拡縮倍率
+    rotate : int
+        画像の回転角度
+    rotate = 90 反時計回りに90度
+    rotate = -90 時計回りに90度
+    rotate = 180 180度回転
+
+    Returns
+    -------
+    result_img : numpy.ndarray
+        処理後の画像
+    """
+    if flip is not None:
+        flip_img = cv2.flip(img_name, flip)
+    else:
+        flip_img = img_name
+
+    resize_img = cv2.resize(flip_img, dsize=None, fx=scale, fy=scale)
+
+    if rotate == 90:
+        result_img = cv2.rotate(resize_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    elif rotate == -90:
+        result_img = cv2.rotate(resize_img, cv2.ROTATE_90_CLOCKWISE)
+    elif rotate == 180:
+        result_img = cv2.rotate(resize_img, cv2.ROTATE_180)
+    else:
+        result_img = resize_img
+
+    return result_img
 
 
 def trim(img_name, kernel_size, output_path=None):
     """
     画像を正方形にトリミング（と保存）
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    kernel_size : int
+        カーネルのサイズ
+    output_path : str
+        出力するディレクトリのパス
+
+    Returns
+    -------
+    trimming_img : numpy.ndarray
+        トリミング後の画像
     """
     height = (math.floor(img_name.shape[0] / kernel_size)) * kernel_size
     width = height
@@ -67,25 +152,48 @@ def trim(img_name, kernel_size, output_path=None):
 def split(img_name, kernel_size, output_path):
     """
     画像の分割と保存
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    kernel_size : int
+        カーネルのサイズ
+    output_path : str
+        出力するディレクトリのパス
     """
     vertical_size = horizontal_size = kernel_size
     h, w = img_name.shape[:2]  # 画像の大きさ
     num_vertical_splits, num_horizontal_splits = np.floor_divide([h, w], [vertical_size, horizontal_size])  # 分割数
     # 分割する。
-    out_images = []
+    out_imgs = []
     for h_img in np.vsplit(img_name, num_vertical_splits):  # 垂直方向に分割する。
         for v_img in np.hsplit(h_img, num_horizontal_splits):  # 水平方向に分割する。
-            out_images.append(v_img)
-    for i, img in enumerate(out_images):
+            out_imgs.append(v_img)
+    for i, img in enumerate(out_imgs):
         cv2.imwrite(os.path.join(str(output_path) + "/" + "split{}.png".format(i)), img)
     return
 
 
-def bokeh_detection(number_of_kernel, input_path, output_path):
+def bokeh_detection(number_of_img_divisions, input_path, output_path):
     """
     ボケ量の検出と画像の保存
+
+    Parameters
+    ----------
+    number_of_img_divisions : int
+        画像の分割数
+    input_path : str
+        カーネルのサイズ
+    output_path : str
+        出力するディレクトリのパス
+
+    Returns
+    -------
+    bokeh_map_img : numpy.ndarray
+        ボケ量マップ画像
     """
-    height = width = number_of_kernel
+    height = width = number_of_img_divisions
     files = os.listdir(input_path)
     count = len(files)
     image_array = []
@@ -95,14 +203,23 @@ def bokeh_detection(number_of_kernel, input_path, output_path):
     image_array_normalize_min_max = preprocessing.minmax_scale(image_array)
     image_array_numpy = np.array(image_array_normalize_min_max)
     image_array_numpy_grayscale = image_array_numpy * 255
-    image_array_reshape = image_array_numpy_grayscale.reshape(height, width)
-    cv2.imwrite(os.path.join(str(output_path) + "/" + "result.png"), image_array_reshape)
-    return
+    bokeh_map_img = image_array_numpy_grayscale.reshape(height, width)
+    cv2.imwrite(os.path.join(str(output_path) + "/" + "result.png"), bokeh_map_img)
+    return bokeh_map_img
 
 
 def my_mouse_callback(event, x, y):
     """
     マウスコールバック
+
+    Parameters
+    ----------
+    event : int
+        マウスイベントの取得
+    x : int
+        マウスのx座標
+    y : int
+        マウスのy座標
     """
     global ix, iy, box_width, box_height, box, drawing, complete_region
 
@@ -137,6 +254,18 @@ def my_mouse_callback(event, x, y):
 def roi_select(img_name, output_path=None):
     """
     ROIの設定（とROI画像の保存）
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    output_path : str
+        出力するディレクトリのパス
+
+    Returns
+    -------
+    roi_img : numpy.ndarray
+        ROI画像
     """
     global ix, iy, box_width, box_height, box, drawing, complete_region
 
