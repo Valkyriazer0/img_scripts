@@ -11,7 +11,6 @@ import tkinter.filedialog
 import tkinter.messagebox
 from sklearn import preprocessing
 
-
 # グローバル変数
 drawing = False
 complete_region = False
@@ -50,9 +49,7 @@ def directory_path_select(io_type):
     Parameters
     ----------
     io_type : int
-        入出力の設定
-    io_type = 1 入力
-    io_type = 0 出力
+        input=1, output=0
 
     Returns
     -------

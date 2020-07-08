@@ -63,7 +63,7 @@ def img_transform(img_name, flip=None, scale=1, rotate=0):
     flip = 0 x軸を中心に反転
     flip > 0 y軸を中心に反転
     flip < 0 点対称に反転
-    scale : int
+    scale : float
         画像の拡縮倍率
     rotate : int
         画像の回転角度
