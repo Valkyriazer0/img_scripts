@@ -3,7 +3,7 @@
 """
 import cv2
 import numpy as np
-import os
+import os.path
 import sys
 import math
 import tkinter
@@ -34,7 +34,7 @@ def input_file_path_select(file_type_name="*.jpg;*.png;*.bmp;.jpeg"):
     root = tkinter.Tk()
     root.withdraw()
     file_type = [("", file_type_name)]
-    initial_dir = os.path.abspath(os.path.dirname(__file__))
+    initial_dir = os.path.expanduser('~/Downloads')
     file_res = messagebox.askokcancel("入力ファイルの選択", "入力ファイルを選択してください")
     if file_res:
         file_path = filedialog.askopenfilenames(filetypes=file_type, initialdir=initial_dir)
