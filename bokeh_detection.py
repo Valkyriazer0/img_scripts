@@ -9,7 +9,7 @@ import img_module
 input_image_path = img_module.input_file_path_select()[0]
 input_img = cv2.imread(input_image_path)
 # カーネルの大きさを指定
-kernel_size = 64
+kernel_size = 16
 # 画像のトリミング
 trim_img = img_module.trim(input_img, kernel_size)
 # 画像の分割と保存

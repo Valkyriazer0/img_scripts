@@ -116,6 +116,29 @@ def img_transform(img_name, flip=None, scale=1, rotate=0):
     return result_img
 
 
+def gamma_correction(img_name, gamma):
+    """
+    画像のガンマ補正
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    gamma : int
+        ガンマ補正値
+
+    Returns
+    -------
+    img_gamma : numpy.ndarray
+        ガンマ補正後の画像
+    """
+    gamma_cvt = np.zeros((256, 1), dtype='uint8')
+    for i in range(256):
+        gamma_cvt[i][0] = 255 * (float(i) / 255) ** (1.0 / gamma)
+    gamma_img = cv2.LUT(img_name, gamma_cvt)
+    return gamma_img
+
+
 def trim(img_name, kernel_size, output_path=None):
     """
     画像を正方形にトリミング（と保存）
