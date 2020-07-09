@@ -6,9 +6,11 @@ import numpy as np
 import os.path
 import sys
 import math
+import time
 import tkinter
 from tkinter import filedialog, messagebox
 from sklearn import preprocessing
+from tqdm import tqdm
 
 # グローバル変数
 drawing = False
@@ -131,7 +133,7 @@ def img_transform(img_name, flip=None, scale=1, rotate=0):
     return result_img
 
 
-def gamma_correction(img_name, gamma):
+def gamma_correction(img_name, gamma=1.0):
     """
     画像のガンマ補正
 
@@ -148,7 +150,8 @@ def gamma_correction(img_name, gamma):
         ガンマ補正後の画像
     """
     gamma_cvt = np.zeros((256, 1), dtype='uint8')
-    for i in range(256):
+    for i in tqdm(range(256), desc="Gamma correct processing"):
+        time.sleep(0.01)
         gamma_cvt[i][0] = 255 * (float(i) / 255) ** (1.0 / gamma)
     gamma_img = cv2.LUT(img_name, gamma_cvt)
     return gamma_img
@@ -201,8 +204,9 @@ def split(img_name, kernel_size, output_path):
     num_vertical_splits, num_horizontal_splits = np.floor_divide([h, w], [vertical_size, horizontal_size])  # 分割数
     # 分割する。
     out_imgs = []
-    for h_img in np.vsplit(img_name, num_vertical_splits):  # 垂直方向に分割する。
+    for h_img in tqdm(np.vsplit(img_name, num_vertical_splits), desc="Image split processing"):  # 垂直方向に分割する。
         for v_img in np.hsplit(h_img, num_horizontal_splits):  # 水平方向に分割する。
+            time.sleep(0.01)
             out_imgs.append(v_img)
     for i, img in enumerate(out_imgs):
         cv2.imwrite(os.path.join(str(output_path) + "/" + "split{}.png".format(i)), img)
@@ -231,7 +235,8 @@ def bokeh_detection(number_of_img_divisions, input_path, output_path):
     files = os.listdir(input_path)
     count = len(files)
     image_array = []
-    for i in range(count):
+    for i in tqdm(range(count), desc="Bokeh detect processing"):
+        time.sleep(0.01)
         img = cv2.imread(os.path.join(str(input_path) + "/" + "split{}.png".format(i)))
         image_array.append(cv2.Laplacian(img, cv2.CV_64F).var())
     image_array_normalize_min_max = preprocessing.minmax_scale(image_array)
