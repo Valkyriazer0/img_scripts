@@ -17,14 +17,9 @@ ix, iy, box_width, box_height = -1, -1, 0, 0
 box = [ix, iy, box_width, box_height]
 
 
-def input_file_path_select(file_type_name="*.jpg;*.png;*.bmp;.jpeg"):
+def input_file_path_select():
     """
     単一or複数のファイル選択ダイアログの表示
-
-    Parameters
-    ----------
-    file_type_name : str
-        ファイル形式の選択
 
     Returns
     -------
@@ -33,7 +28,7 @@ def input_file_path_select(file_type_name="*.jpg;*.png;*.bmp;.jpeg"):
     """
     root = tkinter.Tk()
     root.withdraw()
-    file_type = [("", file_type_name)]
+    file_type = [("画像ファイル", "*.jpg;*.png;*.bmp"), ("すべてのファイル", "*.*")]
     initial_dir = os.path.expanduser('~/Downloads')
     file_res = messagebox.askokcancel("入力ファイルの選択", "入力ファイルを選択してください")
     if file_res:
@@ -63,7 +58,7 @@ def directory_path_select(io_type):
     """
     root = tkinter.Tk()
     root.withdraw()
-    initial_dir = os.path.abspath(os.path.dirname(__file__))
+    initial_dir = os.path.expanduser('~/Downloads')
     if io_type == 1:
         directory_res = messagebox.askokcancel("入力ファイルの保存されたディレクトリの選択",
                                                "入力ファイルの保存されたディレクトリを選択してください")
