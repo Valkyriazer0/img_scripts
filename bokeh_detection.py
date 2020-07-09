@@ -10,8 +10,10 @@ input_image_path = img_module.input_file_path_select()[0]
 input_img = cv2.imread(input_image_path)
 # カーネルの大きさを指定
 kernel_size = 16
+# 画像のガンマ補正
+img_gamma = img_module.gamma_correction(input_img, 1/2.2)
 # 画像のトリミング
-trim_img = img_module.trim(input_img, kernel_size)
+trim_img = img_module.trim(img_gamma, kernel_size)
 # 画像の分割と保存
 output_split_img_path = img_module.directory_path_select(0)
 img_module.split(trim_img, kernel_size, output_split_img_path)

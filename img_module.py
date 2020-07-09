@@ -35,10 +35,16 @@ def input_file_path_select(file_type_name="*.jpg;*.png;*.bmp;.jpeg"):
     root.withdraw()
     file_type = [("", file_type_name)]
     initial_dir = os.path.abspath(os.path.dirname(__file__))
-    messagebox.showinfo("入力ファイルの選択", "入力ファイルを選択してください")
-    file_path = filedialog.askopenfilenames(filetypes=file_type, initialdir=initial_dir)
-    file_path_list = list(file_path)
-    return file_path_list
+    file_res = messagebox.askokcancel("入力ファイルの選択", "入力ファイルを選択してください")
+    if file_res:
+        file_path = filedialog.askopenfilenames(filetypes=file_type, initialdir=initial_dir)
+        if file_path == "":
+            sys.exit(0)
+        else:
+            file_path_list = list(file_path)
+            return file_path_list
+    elif not file_res:
+        sys.exit(0)
 
 
 def directory_path_select(io_type):
@@ -59,16 +65,30 @@ def directory_path_select(io_type):
     root.withdraw()
     initial_dir = os.path.abspath(os.path.dirname(__file__))
     if io_type == 1:
-        messagebox.showinfo("入力ファイルの保存されたディレクトリの選択",
-                            "入力ファイルの保存されたディレクトリを選択してください")
+        directory_res = messagebox.askokcancel("入力ファイルの保存されたディレクトリの選択",
+                                               "入力ファイルの保存されたディレクトリを選択してください")
+        if directory_res:
+            directory_path = filedialog.askdirectory(initialdir=initial_dir)
+            if directory_path == "":
+                sys.exit(0)
+            else:
+                return directory_path
+        elif not directory_res:
+            sys.exit(0)
     elif io_type == 0:
-        messagebox.showinfo("出力ファイルを保存するディレクトリの選択",
-                            "出力ファイルを保存するディレクトリを選択してください")
+        directory_res = messagebox.askokcancel("出力ファイルを保存するディレクトリの選択",
+                                               "出力ファイルを保存するディレクトリを選択してください")
+        if directory_res:
+            directory_path = filedialog.askdirectory(initialdir=initial_dir)
+            if directory_path == "":
+                sys.exit(1)
+            else:
+                return directory_path
+        elif not directory_res:
+            sys.exit(0)
     else:
         print("入出力の設定を確認してください")
         sys.exit(1)
-    directory_path = filedialog.askdirectory(initialdir=initial_dir)
-    return directory_path
 
 
 def img_transform(img_name, flip=None, scale=1, rotate=0):
@@ -124,7 +144,7 @@ def gamma_correction(img_name, gamma):
     ----------
     img_name : numpy.ndarray
         入力画像
-    gamma : int
+    gamma : float
         ガンマ補正値
 
     Returns
