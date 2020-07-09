@@ -7,8 +7,7 @@ import os
 import sys
 import math
 import tkinter
-import tkinter.filedialog
-import tkinter.messagebox
+from tkinter import filedialog, messagebox
 from sklearn import preprocessing
 
 # グローバル変数
@@ -36,8 +35,8 @@ def input_file_path_select(file_type_name="*.jpg;*.png;*.bmp;.jpeg"):
     root.withdraw()
     file_type = [("", file_type_name)]
     initial_dir = os.path.abspath(os.path.dirname(__file__))
-    tkinter.messagebox.showinfo("入力ファイルの選択", "入力ファイルを選択してください")
-    file_path = tkinter.filedialog.askopenfilenames(filetypes=file_type, initialdir=initial_dir)
+    messagebox.showinfo("入力ファイルの選択", "入力ファイルを選択してください")
+    file_path = filedialog.askopenfilenames(filetypes=file_type, initialdir=initial_dir)
     file_path_list = list(file_path)
     return file_path_list
 
@@ -60,15 +59,15 @@ def directory_path_select(io_type):
     root.withdraw()
     initial_dir = os.path.abspath(os.path.dirname(__file__))
     if io_type == 1:
-        tkinter.messagebox.showinfo("入力ファイルの保存されたディレクトリの選択",
-                                    "入力ファイルの保存されたディレクトリを選択してください")
+        messagebox.showinfo("入力ファイルの保存されたディレクトリの選択",
+                            "入力ファイルの保存されたディレクトリを選択してください")
     elif io_type == 0:
-        tkinter.messagebox.showinfo("出力ファイルを保存するディレクトリの選択",
-                                    "出力ファイルを保存するディレクトリを選択してください")
+        messagebox.showinfo("出力ファイルを保存するディレクトリの選択",
+                            "出力ファイルを保存するディレクトリを選択してください")
     else:
         print("入出力の設定を確認してください")
         sys.exit(1)
-    directory_path = tkinter.filedialog.askdirectory(initialdir=initial_dir)
+    directory_path = filedialog.askdirectory(initialdir=initial_dir)
     return directory_path
 
 
