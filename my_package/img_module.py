@@ -4,11 +4,8 @@
 import cv2
 import numpy as np
 import os.path
-import sys
 import math
 import time
-import tkinter
-from tkinter import filedialog, messagebox
 from sklearn import preprocessing
 from tqdm import tqdm
 
@@ -19,73 +16,106 @@ ix, iy, box_width, box_height = -1, -1, 0, 0
 box = [ix, iy, box_width, box_height]
 
 
-def input_file_path_select():
+def my_mouse_callback(event, x, y, flag, param):
     """
-    単一or複数のファイル選択ダイアログの表示
-
-    Returns
-    -------
-    file_path_list : list
-        ファイルパス
-    """
-    root = tkinter.Tk()
-    root.withdraw()
-    file_type = [("画像ファイル", "*.jpg;*.png;*.bmp"), ("すべてのファイル", "*.*")]
-    initial_dir = os.path.expanduser('~/Downloads')
-    file_res = messagebox.askokcancel("入力ファイルの選択", "入力ファイルを選択してください")
-    if file_res:
-        file_path = filedialog.askopenfilenames(filetypes=file_type, initialdir=initial_dir)
-        if file_path == "":
-            sys.exit(0)
-        else:
-            file_path_list = list(file_path)
-            return file_path_list
-    elif not file_res:
-        sys.exit(0)
-
-
-def directory_path_select(io_type):
-    """
-    ディレクトリ選択ダイアログの表示
+    マウスコールバック
 
     Parameters
     ----------
-    io_type : int
-        input=1, output=0
-
-    Returns
-    -------
-    directory_path : str
-        ファイルパス
+    event : int
+        マウスイベントの取得
+    x : int
+        マウスのx座標
+    y : int
+        マウスのy座標
+    flag : int
+        マウスイベントと同時に押されるボタンの論理和
+    param : Any
+        関数の第三引数
     """
-    root = tkinter.Tk()
-    root.withdraw()
-    initial_dir = os.path.expanduser('~/Downloads')
-    if io_type == 1:
-        directory_res = messagebox.askokcancel("入力ファイルの保存されたディレクトリの選択",
-                                               "入力ファイルの保存されたディレクトリを選択してください")
-        if directory_res:
-            directory_path = filedialog.askdirectory(initialdir=initial_dir)
-            if directory_path == "":
-                sys.exit(0)
-            else:
-                return directory_path
-        elif not directory_res:
-            sys.exit(0)
-    elif io_type == 0:
-        directory_res = messagebox.askokcancel("出力ファイルを保存するディレクトリの選択",
-                                               "出力ファイルを保存するディレクトリを選択してください")
-        if directory_res:
-            directory_path = filedialog.askdirectory(initialdir=initial_dir)
-            if directory_path == "":
-                sys.exit(1)
-            else:
-                return directory_path
-        elif not directory_res:
-            sys.exit(0)
-    else:
-        print("入出力の設定を確認してください")
-        sys.exit(1)
+    global ix, iy, box_width, box_height, box, drawing, complete_region
+
+    if event == cv2.EVENT_MOUSEMOVE:
+        if drawing:
+            box_width = x - ix
+            box_height = y - iy
+
+    elif event == cv2.EVENT_LBUTTONDOWN:
+        drawing = True
+
+        ix = x
+        iy = y
+        box_width = 0
+        box_height = 0
+
+    elif event == cv2.EVENT_LBUTTONUP:
+        drawing = False
+        complete_region = True
+
+        if box_width < 0:
+            ix += box_width
+            box_width *= -1
+        if box_height < 0:
+            iy += box_height
+            box_height *= -1
+
+    if not flag or not param:
+        pass
+
+    box = [ix, iy, box_width, box_height]
+    return
+
+
+def roi_select(img_name, output_path=None):
+    """
+    ROIの設定（とROI画像の保存）
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    output_path : str
+        出力するディレクトリのパス
+
+    Return
+    -------
+    roi_img : numpy.ndarray
+        ROI画像
+    """
+    global ix, iy, box_width, box_height, box, drawing, complete_region
+
+    roi_image = []
+    source_window = "draw_rectangle"
+    roi_window = "region_of_image"
+
+    img_copy = img_name.copy()  # 画像コピー
+
+    cv2.namedWindow(source_window)
+    cv2.setMouseCallback(source_window, my_mouse_callback)
+
+    while True:
+        cv2.imshow(source_window, img_copy)
+
+        if drawing:  # 左クリック押されてたら
+            img_copy = img_name.copy()  # 画像コピー
+            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (0, 255, 0), 2)  # 矩形を描画
+
+        if complete_region:  # 矩形の選択が終了したら
+            complete_region = False
+
+            roi_image = img_name[iy:iy + box_height, ix:ix + box_width]  # 元画像から選択範囲を切り取り
+            cv2.imshow(roi_window, roi_image)  # 切り取り画像表示
+
+        # キー操作
+        k = cv2.waitKey(1) & 0xFF
+        if k == 27:  # esc押されたら終了
+            break
+        elif k == ord('s') and output_path is not None:  # 's'押されたら画像を保存
+            cv2.imwrite(os.path.join(str(output_path) + "/" + "roi.png"), roi_image)
+            break
+
+    cv2.destroyAllWindows()
+    return roi_image
 
 
 def img_transform(img_name, flip=None, scale=1, rotate=0):
@@ -109,7 +139,7 @@ def img_transform(img_name, flip=None, scale=1, rotate=0):
     rotate = -90 時計回りに90度
     rotate = 180 180度回転
 
-    Returns
+    Return
     -------
     result_img : numpy.ndarray
         処理後の画像
@@ -144,7 +174,7 @@ def gamma_correction(img_name, gamma=1.0):
     gamma : float
         ガンマ補正値
 
-    Returns
+    Return
     -------
     img_gamma : numpy.ndarray
         ガンマ補正後の画像
@@ -170,7 +200,7 @@ def trim(img_name, kernel_size, output_path=None):
     output_path : str
         出力するディレクトリのパス
 
-    Returns
+    Return
     -------
     trimming_img : numpy.ndarray
         トリミング後の画像
@@ -226,7 +256,7 @@ def bokeh_detection(number_of_img_divisions, input_path, output_path):
     output_path : str
         出力するディレクトリのパス
 
-    Returns
+    Return
     -------
     bokeh_map_img : numpy.ndarray
         ボケ量マップ画像
@@ -245,98 +275,3 @@ def bokeh_detection(number_of_img_divisions, input_path, output_path):
     bokeh_map_img = image_array_numpy_grayscale.reshape(height, width)
     cv2.imwrite(os.path.join(str(output_path) + "/" + "result.png"), bokeh_map_img)
     return bokeh_map_img
-
-
-def my_mouse_callback(event, x, y):
-    """
-    マウスコールバック
-
-    Parameters
-    ----------
-    event : int
-        マウスイベントの取得
-    x : int
-        マウスのx座標
-    y : int
-        マウスのy座標
-    """
-    global ix, iy, box_width, box_height, box, drawing, complete_region
-
-    if event == cv2.EVENT_MOUSEMOVE:
-        if drawing:
-            box_width = x - ix
-            box_height = y - iy
-
-    elif event == cv2.EVENT_LBUTTONDOWN:  # マウス左押された時
-        drawing = True
-
-        ix = x
-        iy = y
-        box_width = 0
-        box_height = 0
-
-    elif event == cv2.EVENT_LBUTTONUP:  # マウス左離された時
-        drawing = False
-        complete_region = True
-
-        if box_width < 0:
-            ix += box_width
-            box_width *= -1
-        if box_height < 0:
-            iy += box_height
-            box_height *= -1
-
-    box = [ix, iy, box_width, box_height]  # 切り取り範囲格納
-    return
-
-
-def roi_select(img_name, output_path=None):
-    """
-    ROIの設定（とROI画像の保存）
-
-    Parameters
-    ----------
-    img_name : numpy.ndarray
-        入力画像
-    output_path : str
-        出力するディレクトリのパス
-
-    Returns
-    -------
-    roi_img : numpy.ndarray
-        ROI画像
-    """
-    global ix, iy, box_width, box_height, box, drawing, complete_region
-
-    roi_image = []
-    source_window = "draw_rectangle"
-    roi_window = "region_of_image"
-
-    img_copy = img_name.copy()  # 画像コピー
-
-    cv2.namedWindow(source_window)
-    cv2.setMouseCallback(source_window, my_mouse_callback)
-
-    while True:
-        cv2.imshow(source_window, img_copy)
-
-        if drawing:  # 左クリック押されてたら
-            img_copy = img_name.copy()  # 画像コピー
-            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (0, 255, 0), 2)  # 矩形を描画
-
-        if complete_region:  # 矩形の選択が終了したら
-            complete_region = False
-
-            roi_image = img_name[iy:iy + box_height, ix:ix + box_width]  # 元画像から選択範囲を切り取り
-            cv2.imshow(roi_window, roi_image)  # 切り取り画像表示
-
-        # キー操作
-        k = cv2.waitKey(1) & 0xFF
-        if k == 27:  # esc押されたら終了
-            break
-        elif k == ord('s') and output_path is not None:  # 's'押されたら画像を保存
-            cv2.imwrite(os.path.join(str(output_path) + "/" + "roi.png"), roi_image)
-            break
-
-    cv2.destroyAllWindows()
-    return roi_image
