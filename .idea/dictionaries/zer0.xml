@@ -4,7 +4,9 @@
       <w>bokeh</w>
       <w>imgs</w>
       <w>kargs</w>
+      <w>laplacian</w>
       <w>ndarray</w>
+      <w>sobel</w>
       <w>uint</w>
     </words>
   </dictionary>

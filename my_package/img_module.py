@@ -4,6 +4,7 @@
 import cv2
 import numpy as np
 import os.path
+import sys
 import time
 from sklearn import preprocessing
 from tqdm import tqdm
@@ -13,6 +14,76 @@ drawing = False
 complete_region = False
 ix, iy, box_width, box_height = -1, -1, 0, 0
 box = [ix, iy, box_width, box_height]
+
+
+def load_img(input_img_path, img_type="color_rgb"):
+    """
+    画像の入力
+
+    Parameter
+    ----------
+    input_img_path : str
+        入力する画像のパス
+    img_type : str
+        color_bgr, color_rgb, color_hsv, gray
+
+    Return
+    -------
+    img : numpy.ndarray
+        入力画像
+    """
+    if img_type == "color_bgr":
+        img = cv2.imread(input_img_path)
+    elif img_type == "color_rgb":
+        img = cv2.imread(input_img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    elif img_type == "color_hsv":
+        img = cv2.imread(input_img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    elif img_type == "gray":
+        img = cv2.imread(input_img_path, cv2.IMREAD_GRAYSCALE)
+    else:
+        sys.exit(1)
+    return img
+
+
+def color_conversion(img_name, color_type="bgr2rgb"):
+    """
+    色空間の変換
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    color_type : str
+        変換のタイプ
+        bgr2rgb, bgr2hsv, bgr2gray, rgb2bgr,
+        rgb2hsv, rgb2gray, hsv2bgr, hsv2rgb
+
+    Return
+    -------
+    conversion_img : numpy.ndarray
+        処理後の画像
+    """
+    if color_type == "bgr2rgb":
+        conversion_img = cv2.cvtColor(img_name, cv2.COLOR_BGR2RGB)
+    elif color_type == "bgr2hsv":
+        conversion_img = cv2.cvtColor(img_name, cv2.COLOR_BGR2HSV)
+    elif color_type == "bgr2gray":
+        conversion_img = cv2.cvtColor(img_name, cv2.COLOR_BGR2GRAY)
+    elif color_type == "rgb2bgr":
+        conversion_img = cv2.cvtColor(img_name, cv2.COLOR_RGB2BGR)
+    elif color_type == "rgb2hsv":
+        conversion_img = cv2.cvtColor(img_name, cv2.COLOR_RGB2HSV)
+    elif color_type == "rgb2gray":
+        conversion_img = cv2.cvtColor(img_name, cv2.COLOR_RGB2GRAY)
+    elif color_type == "hsv2bgr":
+        conversion_img = cv2.cvtColor(img_name, cv2.COLOR_HSV2BGR)
+    elif color_type == "hsv2rgb":
+        conversion_img = cv2.cvtColor(img_name, cv2.COLOR_HSV2RGB)
+    else:
+        sys.exit(1)
+    return conversion_img
 
 
 def my_mouse_callback(event, x, y, flag, param):
@@ -127,16 +198,16 @@ def img_transform(img_name, flip=None, scale=1, rotate=0):
         入力画像
     flip : int
         画像の反転
-    flip = 0 x軸を中心に反転
-    flip > 0 y軸を中心に反転
-    flip < 0 点対称に反転
+        flip = 0 x軸を中心に反転
+        flip > 0 y軸を中心に反転
+        flip < 0 点対称に反転
     scale : float
         画像の拡縮倍率
     rotate : int
         画像の回転角度
-    rotate = 90 反時計回りに90度
-    rotate = -90 時計回りに90度
-    rotate = 180 180度回転
+        rotate = 90 反時計回りに90度
+        rotate = -90 時計回りに90度
+        rotate = 180 180度回転
 
     Return
     -------
@@ -160,6 +231,72 @@ def img_transform(img_name, flip=None, scale=1, rotate=0):
         result_img = resize_img
 
     return result_img
+
+
+def blur_filter(img_name, filter_type, kernel_size=(3, 3)):
+    """
+    ぼかしフィルタ
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    filter_type : str
+        フィルタのタイプ
+        average, gauss, median
+    kernel_size : tuple
+        カーネルのサイズ
+
+    Return
+    -------
+    blur_img : numpy.ndarray
+        処理後の画像
+    """
+    if filter_type == "average":
+        blur_img = cv2.blur(img_name, kernel_size)
+    elif filter_type == "gauss":
+        blur_img = cv2.GaussianBlur(img_name, kernel_size, 0)
+    elif filter_type == "median":
+        blur_img = cv2.medianBlur(img_name, kernel_size)
+    else:
+        sys.exit(1)
+    return blur_img
+
+
+def edge_filter(img_name, filter_type, kernel_size=(3, 3), threshold1=100, threshold2=100):
+    """
+    エッジフィルタ
+
+    Parameters
+    ----------
+    img_name : numpy.ndarray
+        入力画像
+    filter_type : str
+        フィルタのタイプ
+        laplacian, sobel, canny
+    kernel_size : tuple
+        カーネルのサイズ
+    threshold1 : int
+    threshold2 : int
+        しきい値
+
+    Return
+    -------
+    edge_img : numpy.ndarray
+        処理後の画像
+    """
+    gray_img = cv2.cvtColor(img_name, cv2.COLOR_RGB2GRAY)
+    if filter_type == "laplacian":
+        edge_img = cv2.Laplacian(gray_img, cv2.CV_64F)
+    elif filter_type == "sobel":
+        gray_x = cv2.Sobel(gray_img, cv2.CV_32F, 1, 0, kernel_size)
+        gray_y = cv2.Sobel(gray_img, cv2.CV_32F, 0, 1, kernel_size)
+        edge_img = np.sqrt(gray_x ** 2 + gray_y ** 2)
+    elif filter_type == "canny":
+        edge_img = cv2.Canny(img_name, threshold1, threshold2)
+    else:
+        sys.exit(1)
+    return edge_img
 
 
 def gamma_correction(img_name, gamma=1.0):

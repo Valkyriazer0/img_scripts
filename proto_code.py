@@ -3,11 +3,13 @@
 """
 
 import sys
-from my_package.decorator import stop_watch, deco
+from my_package.decorator import stop_watch
 import cv2
 import numpy as np
+from my_package import img_module, path_module
 
-img = cv2.imread(r'C:\Users\zer0\Downloads\DSC_9684.JPG')
+
+# img = cv2.imread(r'C:\Users\zer0\Downloads\DSC_9684.JPG')
 img2 = cv2.imread(r'C:\Users\zer0\Downloads\gaussian.jpg')
 
 
@@ -18,10 +20,10 @@ def get_circle(frame, lower_color, upper_color):
     min_radius = 25
 
     # HSVによる画像情報に変換
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = img_module.load_img(r'C:\Users\zer0\Downloads\DSC_9684.JPG', "color_hsv")
 
     # ガウシアンぼかしを適用して、認識精度を上げる
-    blur = cv2.GaussianBlur(hsv, (9, 9), 0)
+    blur = img_module.blur_filter(hsv, "gauss", (9, 9))
 
     # 指定した色範囲のみを抽出する
     color = cv2.inRange(blur, lower_color, upper_color)
@@ -56,11 +58,9 @@ def get_circle(frame, lower_color, upper_color):
 
 @stop_watch
 def main():
-    blur = cv2.GaussianBlur(img, (81, 81), 0)
-
     cv2.namedWindow("img", cv2.WINDOW_NORMAL)
     cv2.namedWindow("img_org", cv2.WINDOW_NORMAL)
-    cv2.imshow("img", blur)
+    cv2.imshow("img", img)
     cv2.imshow("img_org", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
