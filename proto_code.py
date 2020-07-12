@@ -1,10 +1,14 @@
 """本スクリプトの説明
    関数や処理のプロトタイプを作成するスクリプト
 """
+
+import sys
+from my_package.decorator import stop_watch, deco
 import cv2
 import numpy as np
 
 img = cv2.imread(r'C:\Users\zer0\Downloads\DSC_9684.JPG')
+img2 = cv2.imread(r'C:\Users\zer0\Downloads\gaussian.jpg')
 
 
 def get_circle(frame, lower_color, upper_color):
@@ -48,3 +52,19 @@ def get_circle(frame, lower_color, upper_color):
             return center, radius
     else:
         return None
+
+
+@stop_watch
+def main():
+    blur = cv2.GaussianBlur(img, (81, 81), 0)
+
+    cv2.namedWindow("img", cv2.WINDOW_NORMAL)
+    cv2.namedWindow("img_org", cv2.WINDOW_NORMAL)
+    cv2.imshow("img", blur)
+    cv2.imshow("img_org", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    main()

@@ -4,7 +4,6 @@
 import cv2
 import numpy as np
 import os.path
-import math
 import time
 from sklearn import preprocessing
 from tqdm import tqdm
@@ -131,7 +130,7 @@ def img_transform(img_name, flip=None, scale=1, rotate=0):
     flip = 0 x軸を中心に反転
     flip > 0 y軸を中心に反転
     flip < 0 点対称に反転
-    scale : int
+    scale : float
         画像の拡縮倍率
     rotate : int
         画像の回転角度
@@ -205,7 +204,7 @@ def trim(img_name, kernel_size, output_path=None):
     trimming_img : numpy.ndarray
         トリミング後の画像
     """
-    height = (math.floor(img_name.shape[0] / kernel_size)) * kernel_size
+    height = img_name.shape[0] // kernel_size * kernel_size
     width = height
     height_margin = (img_name.shape[0] - height) // 2
     width_margin = (img_name.shape[1] - width) // 2
@@ -252,7 +251,7 @@ def bokeh_detection(number_of_img_divisions, input_path, output_path):
     number_of_img_divisions : int
         画像の分割数
     input_path : str
-        カーネルのサイズ
+        入力画像の保存されたディレクトリのパス
     output_path : str
         出力するディレクトリのパス
 
