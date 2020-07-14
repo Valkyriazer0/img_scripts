@@ -1,19 +1,30 @@
+"""本スクリプトの説明
+   関数や処理のプロトタイプを作成するスクリプト
+"""
+
+import sys
+from my_package.decorator import stop_watch
 import cv2
-import math
 import numpy as np
+import math
+from my_package import img_module, path_module
 
 
 img = cv2.imread(r'C:\Users\zer0\Downloads\DSC_9684.JPG')
+img2 = cv2.imread(r'C:\Users\zer0\Downloads\gaussian.jpg')
 
 
-def getCircle(frame, lower_color, upper_color):
-    MIN_RADIUS = 25
+def get_circle(frame, lower_color, upper_color):
+    """
+    円を検出する
+    """
+    min_radius = 25
 
     # HSVによる画像情報に変換
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = img_module.load_img(r'C:\Users\zer0\Downloads\DSC_9684.JPG', "color_hsv")
 
     # ガウシアンぼかしを適用して、認識精度を上げる
-    blur = cv2.GaussianBlur(hsv, (9, 9), 0)
+    blur = img_module.blur_filter(hsv, "gauss", (9, 9))
 
     # 指定した色範囲のみを抽出する
     color = cv2.inRange(blur, lower_color, upper_color)
@@ -38,7 +49,7 @@ def getCircle(frame, lower_color, upper_color):
         radius = int(radius)
 
         # 円が小さすぎたら円を検出していないとみなす
-        if radius < MIN_RADIUS:
+        if radius < min_radius:
             return None
         else:
             return center, radius
@@ -46,27 +57,32 @@ def getCircle(frame, lower_color, upper_color):
         return None
 
 
-if __name__ == '__main__':
-    # 内蔵カメラを起動(カメラが一つしか繋がっていない場合は、引数に0を渡せば良い)
-    cap = cv2.VideoCapture(0)
+@stop_watch
+def main():
+    gauss_img = img_module.blur_filter(img, "gauss", 25)
+    canny_img = cv2.Canny(img, threshold1=30, threshold2=60)
+    canny_gauss_img = cv2.Canny(gauss_img, threshold1=30, threshold2=60)
+    output_img = canny_img / canny_gauss_img
+    # output_img = cv2.Laplacian(output_img, cv2.CV_64F)
 
-    while True:
-        # 赤色の円を抽出する
-        frame = cap.read()[1]
-        getframe = getCircle(frame, np.array([130, 80, 80]), np.array([200, 255, 255]))
-
-        if getframe is not None:
-            # 見つかった円の上に青い円を描画
-            # getframe[0]:中心座標、getframe[1]:半径
-            cv2.circle(frame, getframe[0], getframe[1], (255, 0, 0), 2)
-            print(getframe[1])
-
-        # 検出結果とともに映像を表示
-        cv2.imshow('Circle Detect', frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # 終了時にカメラを解放
-    cap.release()
+    cv2.namedWindow("output_img", cv2.WINDOW_NORMAL)
+    cv2.imshow("output_img", output_img)
+    # cv2.namedWindow("img_org", cv2.WINDOW_NORMAL)
+    # cv2.namedWindow("img_filter", cv2.WINDOW_NORMAL)
+    # cv2.imshow("img_org", canny_img)
+    # cv2.imshow("img_filter", canny_gauss_img)
+    cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+
+def joint_bailateral_filter(img_name):
+    w = img_name.shape[1]
+    h = img_name.shape[0]
+    pixel_color = img_name[1, 3]
+    b = pixel_color[0]
+    g = pixel_color[1]
+    r = pixel_color[2]
+    for n in range(-2, 3):
+        for m in range(-2, 3):
+            w = math.exp(-(x-y)**2/2*s**2)
+
