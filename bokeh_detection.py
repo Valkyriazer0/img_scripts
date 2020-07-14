@@ -19,7 +19,7 @@ def main(kernel_size, gamma=1.0):
     """
     # 入力画像を取得
     input_image_path = path_module.input_file_path_select()[0]
-    input_img = img_module.load_img(input_image_path)
+    input_img = img_module.load_img(input_image_path, "gray")
     # 画像のガンマ補正
     img_gamma = img_module.gamma_correction(input_img, gamma)
     # 画像のトリミング
@@ -37,4 +37,4 @@ def main(kernel_size, gamma=1.0):
 
 
 if __name__ == '__main__':
-    main(16, 1 / 2.2)
+    main(64, 1)

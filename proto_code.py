@@ -6,10 +6,11 @@ import sys
 from my_package.decorator import stop_watch
 import cv2
 import numpy as np
+import math
 from my_package import img_module, path_module
 
 
-# img = cv2.imread(r'C:\Users\zer0\Downloads\DSC_9684.JPG')
+img = cv2.imread(r'C:\Users\zer0\Downloads\DSC_9684.JPG')
 img2 = cv2.imread(r'C:\Users\zer0\Downloads\gaussian.jpg')
 
 
@@ -58,13 +59,30 @@ def get_circle(frame, lower_color, upper_color):
 
 @stop_watch
 def main():
-    cv2.namedWindow("img", cv2.WINDOW_NORMAL)
-    cv2.namedWindow("img_org", cv2.WINDOW_NORMAL)
-    cv2.imshow("img", img)
-    cv2.imshow("img_org", img)
+    gauss_img = img_module.blur_filter(img, "gauss", 25)
+    canny_img = cv2.Canny(img, threshold1=30, threshold2=60)
+    canny_gauss_img = cv2.Canny(gauss_img, threshold1=30, threshold2=60)
+    output_img = canny_img / canny_gauss_img
+    # output_img = cv2.Laplacian(output_img, cv2.CV_64F)
+
+    cv2.namedWindow("output_img", cv2.WINDOW_NORMAL)
+    cv2.imshow("output_img", output_img)
+    # cv2.namedWindow("img_org", cv2.WINDOW_NORMAL)
+    # cv2.namedWindow("img_filter", cv2.WINDOW_NORMAL)
+    # cv2.imshow("img_org", canny_img)
+    # cv2.imshow("img_filter", canny_gauss_img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
-if __name__ == '__main__':
-    main()
+def joint_bailateral_filter(img_name):
+    w = img_name.shape[1]
+    h = img_name.shape[0]
+    pixel_color = img_name[1, 3]
+    b = pixel_color[0]
+    g = pixel_color[1]
+    r = pixel_color[2]
+    for n in range(-2, 3):
+        for m in range(-2, 3):
+            w = math.exp(-(x-y)**2/2*s**2)
+

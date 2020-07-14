@@ -233,7 +233,7 @@ def img_transform(img_name, flip=None, scale=1, rotate=0):
     return result_img
 
 
-def blur_filter(img_name, filter_type, kernel_size=(3, 3)):
+def blur_filter(img_name, filter_type, kernel_size=3):
     """
     ぼかしフィルタ
 
@@ -244,7 +244,7 @@ def blur_filter(img_name, filter_type, kernel_size=(3, 3)):
     filter_type : str
         フィルタのタイプ
         average, gauss, median
-    kernel_size : tuple
+    kernel_size : int
         カーネルのサイズ
 
     Return
@@ -253,50 +253,14 @@ def blur_filter(img_name, filter_type, kernel_size=(3, 3)):
         処理後の画像
     """
     if filter_type == "average":
-        blur_img = cv2.blur(img_name, kernel_size)
+        blur_img = cv2.blur(img_name, (kernel_size, kernel_size))
     elif filter_type == "gauss":
-        blur_img = cv2.GaussianBlur(img_name, kernel_size, 0)
-    elif filter_type == "median":
-        blur_img = cv2.medianBlur(img_name, kernel_size)
+        blur_img = cv2.GaussianBlur(img_name, (kernel_size, kernel_size), 0)
+    # elif filter_type == "median":
+    #     blur_img = cv2.medianBlur(img_name, kernel_size)
     else:
         sys.exit(1)
     return blur_img
-
-
-def edge_filter(img_name, filter_type, kernel_size=(3, 3), threshold1=100, threshold2=100):
-    """
-    エッジフィルタ
-
-    Parameters
-    ----------
-    img_name : numpy.ndarray
-        入力画像
-    filter_type : str
-        フィルタのタイプ
-        laplacian, sobel, canny
-    kernel_size : tuple
-        カーネルのサイズ
-    threshold1 : int
-    threshold2 : int
-        しきい値
-
-    Return
-    -------
-    edge_img : numpy.ndarray
-        処理後の画像
-    """
-    gray_img = cv2.cvtColor(img_name, cv2.COLOR_RGB2GRAY)
-    if filter_type == "laplacian":
-        edge_img = cv2.Laplacian(gray_img, cv2.CV_64F)
-    elif filter_type == "sobel":
-        gray_x = cv2.Sobel(gray_img, cv2.CV_32F, 1, 0, kernel_size)
-        gray_y = cv2.Sobel(gray_img, cv2.CV_32F, 0, 1, kernel_size)
-        edge_img = np.sqrt(gray_x ** 2 + gray_y ** 2)
-    elif filter_type == "canny":
-        edge_img = cv2.Canny(img_name, threshold1, threshold2)
-    else:
-        sys.exit(1)
-    return edge_img
 
 
 def gamma_correction(img_name, gamma=1.0):
@@ -341,8 +305,12 @@ def trim(img_name, kernel_size, output_path=None):
     trimming_img : numpy.ndarray
         トリミング後の画像
     """
-    height = img_name.shape[0] // kernel_size * kernel_size
-    width = height
+    if img_name.shape[0] < img_name.shape[1]:
+        height = img_name.shape[0] // kernel_size * kernel_size
+        width = height
+    else:
+        width = img_name.shape[1] // kernel_size * kernel_size
+        height = width
     height_margin = (img_name.shape[0] - height) // 2
     width_margin = (img_name.shape[1] - width) // 2
     trimming_img = img_name[height_margin:(img_name.shape[0] - height_margin),
