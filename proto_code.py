@@ -10,8 +10,7 @@ import math
 from my_package import img_module, path_module
 
 
-img = cv2.imread(r'C:\Users\zer0\Downloads\DSC_9684.JPG')
-img2 = cv2.imread(r'C:\Users\zer0\Downloads\gaussian.jpg')
+img = cv2.imread(r"C:\Users\zer0\Downloads\defocus_map\mitte20510004.jpg", 0)
 
 
 def get_circle(frame, lower_color, upper_color):
@@ -75,14 +74,11 @@ def main():
     cv2.destroyAllWindows()
 
 
-def joint_bailateral_filter(img_name):
-    w = img_name.shape[1]
-    h = img_name.shape[0]
-    pixel_color = img_name[1, 3]
-    b = pixel_color[0]
-    g = pixel_color[1]
-    r = pixel_color[2]
-    for n in range(-2, 3):
-        for m in range(-2, 3):
-            w = math.exp(-(x-y)**2/2*s**2)
+gauss_img = img_module.blur_filter(img, "gauss", 25)
+img_difference = cv2.subtract(gauss_img, img)
+img_difference_normalize = cv2.normalize(img_difference, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
+cv2.namedWindow("img", cv2.WINDOW_NORMAL)
+cv2.imshow("img", img_difference_normalize)
+cv2.waitKey(0)
+cv2.destroyAllWindows()

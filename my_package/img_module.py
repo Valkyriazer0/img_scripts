@@ -160,10 +160,11 @@ def roi_select(img_name, output_path=None):
 
     img_copy = img_name.copy()  # 画像コピー
 
-    cv2.namedWindow(source_window)
+    cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
     cv2.setMouseCallback(source_window, my_mouse_callback)
 
     while True:
+        cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
         cv2.imshow(source_window, img_copy)
 
         if drawing:  # 左クリック押されてたら
@@ -174,6 +175,7 @@ def roi_select(img_name, output_path=None):
             complete_region = False
 
             roi_image = img_name[iy:iy + box_height, ix:ix + box_width]  # 元画像から選択範囲を切り取り
+            cv2.namedWindow(roi_window, cv2.WINDOW_NORMAL)
             cv2.imshow(roi_window, roi_image)  # 切り取り画像表示
 
         # キー操作
