@@ -38,7 +38,7 @@ def template_matching_zncc(src_img, tmp_img):
 # 入力画像の読み込み
 input_path = path_module.input_file_path_select()[0]
 img = img_module.load_img(input_path, "gray")
-tmp = img_module.roi_select(img, window_type="NORMAL")
+tmp = img_module.roi_select(img)
 
 # テンプレート画像の高さ・幅
 h, w = tmp.shape

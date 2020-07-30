@@ -136,7 +136,7 @@ def my_mouse_callback(event, x, y, flag, param):
     return
 
 
-def roi_select(img_name, window_type=None, output_path=None):
+def roi_select(img_name, output_path=None):
     """
     ROIの設定（とROI画像の保存）
 
@@ -144,8 +144,6 @@ def roi_select(img_name, window_type=None, output_path=None):
     ----------
     img_name : numpy.ndarray
         入力画像
-    window_type : str
-        表示するウィンドウのタイプ
     output_path : str
         出力するディレクトリのパス
 
@@ -160,19 +158,13 @@ def roi_select(img_name, window_type=None, output_path=None):
     source_window = "draw_rectangle"
     roi_window = "region_of_image"
 
-    img_copy = img_name.copy()
+    img_copy = img_name.copy()  # 画像コピー
 
-    if window_type == "NORMAL":
-        cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
-    else:
-        cv2.namedWindow(source_window)
+    cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
     cv2.setMouseCallback(source_window, my_mouse_callback)
 
     while True:
-        if window_type == "NORMAL":
-            cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
-        else:
-            cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
+        cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
         cv2.imshow(source_window, img_copy)
 
         if drawing:  # 左クリック押されてたら
@@ -183,10 +175,7 @@ def roi_select(img_name, window_type=None, output_path=None):
             complete_region = False
 
             roi_image = img_name[iy:iy + box_height, ix:ix + box_width]  # 元画像から選択範囲を切り取り
-            if window_type == "NORMAL":
-                cv2.namedWindow(roi_window, cv2.WINDOW_NORMAL)
-            else:
-                cv2.namedWindow(roi_window)
+            cv2.namedWindow(roi_window, cv2.WINDOW_NORMAL)
             cv2.imshow(roi_window, roi_image)  # 切り取り画像表示
 
         # キー操作
