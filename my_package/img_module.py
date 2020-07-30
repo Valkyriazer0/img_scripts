@@ -306,7 +306,6 @@ def trim(img_name, kernel_size, output_path=None):
     -------
     trimming_img : numpy.ndarray
         トリミング後の画像
-        aaa
     """
     if img_name.shape[0] < img_name.shape[1]:
         height = img_name.shape[0] // kernel_size * kernel_size
