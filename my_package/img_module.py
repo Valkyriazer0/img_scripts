@@ -1,5 +1,6 @@
 """本モジュールの説明
    画像処理に使用する種々の関数群
+   aaa
 """
 import cv2
 import numpy as np
