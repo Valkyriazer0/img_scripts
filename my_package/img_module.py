@@ -168,8 +168,8 @@ def roi_select(img_name, output_path=None):
         cv2.imshow(source_window, img_copy)
 
         if drawing:  # 左クリック押されてたら
-            img_copy = img_name.copy()  # 画像コピー
-            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (255, 255, 255), 3)  # 矩形を描画
+            img_copy = img_name.copy()
+            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (255, 255, 255), 2)  # 矩形を描画
 
         if complete_region:  # 矩形の選択が終了したら
             complete_region = False
