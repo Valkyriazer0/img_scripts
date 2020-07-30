@@ -158,7 +158,7 @@ def roi_select(img_name, output_path=None):
     source_window = "draw_rectangle"
     roi_window = "region_of_image"
 
-    img_copy = img_name.copy()  # 画像コピー
+    img_copy = img_name.copy()
 
     cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
     cv2.setMouseCallback(source_window, my_mouse_callback)
@@ -169,7 +169,7 @@ def roi_select(img_name, output_path=None):
 
         if drawing:  # 左クリック押されてたら
             img_copy = img_name.copy()  # 画像コピー
-            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (255, 255, 255), 2)  # 矩形を描画
+            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (255, 255, 255), 3)  # 矩形を描画
 
         if complete_region:  # 矩形の選択が終了したら
             complete_region = False
