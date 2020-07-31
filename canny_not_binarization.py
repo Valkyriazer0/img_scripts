@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from my_package import img_module
-import division1
 
 # Read image
 img = cv2.imread(r"C:\Users\zer0\Downloads\DFD_jpg\DSC_9704_00001.jpg", 0)

@@ -4,6 +4,21 @@ from my_package import img_module, path_module
 
 
 def template_matching_zncc(src_img, tmp_img):
+    """
+    ボケ量の検出と画像の保存
+
+    Parameters
+    ----------
+    src_img : numpy.ndarray
+        入力画像
+    tmp_img : numpy.ndarray
+        テンプレート画像
+
+    Return
+    -------
+    bokeh_map_img : numpy.ndarray
+        ボケ量マップ画像
+    """
     height, width = src_img.shape
     height_tmp, width_tmp = tmp_img.shape
 
@@ -18,8 +33,8 @@ def template_matching_zncc(src_img, tmp_img):
         for dx in range(0, width - width_tmp):
             roi = src_img[dy:dy + height_tmp, dx:dx + width_tmp]
             mu_r = np.mean(roi)
-            roi = roi - mu_r
-            tmp_img = tmp_img - mu_t
+            roi -= mu_r
+            tmp_img -= mu_t
 
             num = np.sum(roi * tmp_img)
             den = np.sqrt(np.sum(roi ** 2)) * np.sqrt(np.sum(tmp_img ** 2))
