@@ -10,4 +10,5 @@ import math
 from my_package import img_module, path_module
 
 
-img = cv2.imread(r"C:\Users\zer0\Downloads\defocus_map\mitte20510004.jpg", 0)
+img = cv2.imread(r"C:\Users\Valkyria\Downloads\input.png", 0)
+img_module.split(img, 16, r"C:\Users\Valkyria\Downloads\a")

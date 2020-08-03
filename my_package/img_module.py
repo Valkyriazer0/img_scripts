@@ -340,11 +340,12 @@ def split(img_name, kernel_size, output_path):
     num_vertical_splits, num_horizontal_splits = np.floor_divide([h, w], [vertical_size, horizontal_size])  # 分割数
     # 分割する。
     out_imgs = []
-    for h_img in tqdm(np.vsplit(img_name, num_vertical_splits), desc="Image split processing"):  # 垂直方向に分割する。
-        for v_img in np.hsplit(h_img, num_horizontal_splits):  # 水平方向に分割する。
+    for h_img in tqdm(np.vsplit(img_name, num_vertical_splits), desc="Image split processing"):
+        for v_img in np.hsplit(h_img, num_horizontal_splits):
             time.sleep(0.01)
             out_imgs.append(v_img)
-    for i, img in enumerate(out_imgs):
+    for i, img in enumerate(tqdm(out_imgs, desc="Image save processing")):
+        time.sleep(0.01)
         cv2.imwrite(os.path.join(str(output_path) + "/" + "split{}.png".format(i)), img)
     return
 

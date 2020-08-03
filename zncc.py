@@ -50,19 +50,21 @@ def template_matching_zncc(src_img, tmp_img):
     return pt[1], pt[0]
 
 
-input_path = path_module.input_file_path_select()[0]
-img = img_module.load_img(input_path, "gray")
-tmp = img_module.roi_select(img)
+def main():
+    input_path = path_module.input_file_path_select()[0]
+    img = img_module.load_img(input_path, "gray")
+    tmp = img_module.roi_select(img)
 
-h, w = tmp.shape
+    h, w = tmp.shape
 
-pt = template_matching_zncc(img, tmp)
+    pt = template_matching_zncc(img, tmp)
 
-img = cv2.rectangle(img, (pt[0], pt[1]), (pt[0] + w, pt[1] + h), (0, 0, 200), 3)
+    img = cv2.rectangle(img, (pt[0], pt[1]), (pt[0] + w, pt[1] + h), (0, 0, 200), 3)
 
-cv2.namedWindow("img", cv2.WINDOW_NORMAL)
-cv2.imshow("img", img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    cv2.namedWindow("img", cv2.WINDOW_NORMAL)
+    cv2.imshow("img", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-# cv2.imwrite("C:/github/sample/python/opencv/template-matching/zncc2.png", img)
+    # cv2.imwrite("C:/github/sample/python/opencv/template-matching/zncc2.png", img)
+
