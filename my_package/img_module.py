@@ -245,7 +245,7 @@ def blur_filter(img_name, filter_type, kernel_size=3):
         入力画像
     filter_type : str
         フィルタのタイプ
-        average, gauss, median
+        average, gauss
     kernel_size : int
         カーネルのサイズ
 
@@ -258,8 +258,6 @@ def blur_filter(img_name, filter_type, kernel_size=3):
         blur_img = cv2.blur(img_name, (kernel_size, kernel_size))
     elif filter_type == "gauss":
         blur_img = cv2.GaussianBlur(img_name, (kernel_size, kernel_size), 0)
-    # elif filter_type == "median":
-    #     blur_img = cv2.medianBlur(img_name, kernel_size)
     else:
         sys.exit(1)
     return blur_img
