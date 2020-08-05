@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import cv2
-# import numpy as np
+import numpy as np
 from my_package import img_module, path_module
 
 
