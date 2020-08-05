@@ -67,4 +67,3 @@ def main():
     cv2.destroyAllWindows()
 
     # cv2.imwrite("C:/github/sample/python/opencv/template-matching/zncc2.png", img)
-
