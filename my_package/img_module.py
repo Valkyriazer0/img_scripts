@@ -158,22 +158,24 @@ def roi_select(img_name, output_path=None):
     source_window = "draw_rectangle"
     roi_window = "region_of_image"
 
-    img_copy = img_name.copy()  # 画像コピー
+    img_copy = img_name.copy()
 
-    cv2.namedWindow(source_window)
+    cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
     cv2.setMouseCallback(source_window, my_mouse_callback)
 
     while True:
+        cv2.namedWindow(source_window, cv2.WINDOW_NORMAL)
         cv2.imshow(source_window, img_copy)
 
         if drawing:  # 左クリック押されてたら
-            img_copy = img_name.copy()  # 画像コピー
-            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (0, 255, 0), 2)  # 矩形を描画
+            img_copy = img_name.copy()
+            cv2.rectangle(img_copy, (ix, iy), (ix + box_width, iy + box_height), (255, 255, 255), 2)  # 矩形を描画
 
         if complete_region:  # 矩形の選択が終了したら
             complete_region = False
 
             roi_image = img_name[iy:iy + box_height, ix:ix + box_width]  # 元画像から選択範囲を切り取り
+            cv2.namedWindow(roi_window, cv2.WINDOW_NORMAL)
             cv2.imshow(roi_window, roi_image)  # 切り取り画像表示
 
         # キー操作
@@ -243,7 +245,7 @@ def blur_filter(img_name, filter_type, kernel_size=3):
         入力画像
     filter_type : str
         フィルタのタイプ
-        average, gauss, median
+        average, gauss
     kernel_size : int
         カーネルのサイズ
 
@@ -256,8 +258,6 @@ def blur_filter(img_name, filter_type, kernel_size=3):
         blur_img = cv2.blur(img_name, (kernel_size, kernel_size))
     elif filter_type == "gauss":
         blur_img = cv2.GaussianBlur(img_name, (kernel_size, kernel_size), 0)
-    # elif filter_type == "median":
-    #     blur_img = cv2.medianBlur(img_name, kernel_size)
     else:
         sys.exit(1)
     return blur_img
@@ -338,11 +338,12 @@ def split(img_name, kernel_size, output_path):
     num_vertical_splits, num_horizontal_splits = np.floor_divide([h, w], [vertical_size, horizontal_size])  # 分割数
     # 分割する。
     out_imgs = []
-    for h_img in tqdm(np.vsplit(img_name, num_vertical_splits), desc="Image split processing"):  # 垂直方向に分割する。
-        for v_img in np.hsplit(h_img, num_horizontal_splits):  # 水平方向に分割する。
+    for h_img in tqdm(np.vsplit(img_name, num_vertical_splits), desc="Image split processing"):
+        for v_img in np.hsplit(h_img, num_horizontal_splits):
             time.sleep(0.01)
             out_imgs.append(v_img)
-    for i, img in enumerate(out_imgs):
+    for i, img in enumerate(tqdm(out_imgs, desc="Image save processing")):
+        time.sleep(0.01)
         cv2.imwrite(os.path.join(str(output_path) + "/" + "split{}.png".format(i)), img)
     return
 

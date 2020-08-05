@@ -37,4 +37,4 @@ def main(kernel_size, gamma=1.0):
 
 
 if __name__ == '__main__':
-    main(64, 1)
+    main(16, 1)
