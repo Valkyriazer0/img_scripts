@@ -16,4 +16,4 @@ cv2.imshow("img", magnitude_normalize)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-# cv2.imwrite(r"C:\Users\zer0\Downloads\DFD_jpg\2_4.png", magnitude)
+cv2.imwrite(r"C:\Users\zer0\Downloads\DFD_jpg\2_4.png", magnitude)
