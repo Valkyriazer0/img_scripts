@@ -87,6 +87,7 @@ def binary_gui(img_name: np.ndarray, binary_type: str = None) -> np.ndarray:
         if k == 27 or cv2.getWindowProperty(window_name, 0) == -1:
             break
     cv2.destroyWindow(window_name)
+
     if binary_type == "inversion":
         thresh_img = cv2.bitwise_not(thresh_img)
     else:
