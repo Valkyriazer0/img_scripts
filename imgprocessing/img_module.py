@@ -252,7 +252,7 @@ def highpass_filter(img_name: np.ndarray) -> np.ndarray:
     return result_img
 
 
-def open_close_denoise(img_name: np.ndarray, denoise_type: str) -> np.ndarray:
+def open_close_denoise(img_name: np.ndarray, denoise_type: str = "opening", kernel_size: int = 5) -> np.ndarray:
     """
     画像の入力
 
@@ -261,20 +261,20 @@ def open_close_denoise(img_name: np.ndarray, denoise_type: str) -> np.ndarray:
     img_name : np.ndarray
         入力画像（2値化画像）
     img_type : str
-        open, close
+        opening, closing
+    kernel_size : int
+        カーネルのサイズ
 
     Return
     -------
     result_img : np.ndarray
         入力画像のリスト
     """
-    neighborhood = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], np.uint8)
+    kernel = np.ones((kernel_size, kernel_size), np.uint8)
     if denoise_type == "opening":
-        img_erode = cv2.erode(img_name, neighborhood, iterations=10)
-        result_img = cv2.dilate(img_erode, neighborhood, iterations=10)
+        result_img = cv2.morphologyEx(img_name, cv2.MORPH_OPEN, kernel)
     elif denoise_type == "closing":
-        img_dilate = cv2.dilate(img_name, neighborhood, iterations=10)
-        result_img = cv2.erode(img_dilate, neighborhood, iterations=10)
+        result_img = cv2.morphologyEx(img_name, cv2.MORPH_CLOSE, kernel)
     else:
         sys.exit(1)
     return result_img

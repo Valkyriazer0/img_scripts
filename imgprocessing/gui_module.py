@@ -109,7 +109,7 @@ def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> list:
     Return
     -------
     coordinate : list
-        重心画像
+        重心座標
     """
     binary_img = binary_gui(img_name, "inversion")
     contours, _ = cv2.findContours(binary_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -136,6 +136,7 @@ def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> list:
                 output_path = directory_path_select(0)
             else:
                 pass
+
             keys = coordinate[0].keys()
             with open(os.path.join(str(output_path) + "/" + "coordinate.csv"), 'w', newline="") as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
