@@ -1,8 +1,8 @@
 """本スクリプトの説明
    ボケ量マップの取得を行うスクリプト
 """
-from my_package import img_module, path_module
-from my_package.decorator import stop_watch
+from imgprocessing import img_module, path_module
+from imgprocessing.decorator import stop_watch
 
 
 @stop_watch
