@@ -75,7 +75,7 @@ def window_set(window_name: str, img_name: np.ndarray):
     return
 
 
-def color_conversion(img_name: np.ndarray, cvt_type: str = "bgr2rgb") -> np.ndarray:
+def color_cvt(img_name: np.ndarray, cvt_type: str = "bgr2rgb") -> np.ndarray:
     """
     色空間の変換
 
