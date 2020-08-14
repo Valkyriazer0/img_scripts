@@ -7,7 +7,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from imgprocessing.img_module import window_set
+from imgprocessing.img_module import window_set, roi_select
 from imgprocessing.path_module import directory_path_select
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -146,3 +146,41 @@ def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> tuple:
                 dict_writer.writerows(coordinate)
     cv2.destroyWindow(window_name)
     return coordinate, contours_count
+
+
+def roi2cof(img_name: np.ndarray, output_path: str = None):
+    """
+    ROI画像を用いた重心の座標の計算
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+    output_path : str
+        出力するディレクトリのパス
+
+    Return
+    -------
+    coordinate : list
+        重心座標
+    """
+    roi_img, roi = roi_select(img_name)
+    coordinate, contours_count = center_of_gravity(roi_img)
+    print(coordinate)
+    print(roi)
+
+    for i in range(contours_count):
+        coordinate[i]['X'] = coordinate[i]['X'] + roi[0]
+        coordinate[i]['Y'] = coordinate[i]['Y'] + roi[1]
+
+    if output_path is None:
+        output_path = directory_path_select(0)
+    else:
+        pass
+
+    keys = coordinate[0].keys()
+    with open(os.path.join(str(output_path) + "/" + "coordinate.csv"), 'w', newline="") as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(coordinate)
+    return coordinate
