@@ -130,7 +130,7 @@ def roi_select(img_name: np.ndarray, output_path: str = None) -> tuple:
     window_set(source_window, img_name)
     roi = cv2.selectROI(source_window, img_name, from_center, show_cross_hair)
     cv2.destroyWindow(source_window)
-    roi_img = img_name[roi[1]:roi[1]+roi[3], roi[0]:roi[0]+roi[2]]
+    roi_img = img_name[roi[1]:roi[1] + roi[3], roi[0]:roi[0] + roi[2]]
     if roi_img.size == 0:
         sys.exit(1)
     else:

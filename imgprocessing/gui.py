@@ -56,6 +56,7 @@ def binary_gui(img_name: np.ndarray, binary_type: str = None) -> np.ndarray:
     thresh_img : np.ndarray
         2値化画像
     """
+
     def get_threshold(val: int):
         """
         閾値を取得
