@@ -454,13 +454,13 @@ def circle_detection(img_name: np.ndarray, min_dist: int, threshold1: int, thres
     return circle_img
 
 
-def bokeh_detection(number_of_img_divisions: int, input_path: str, output_path: str) -> np.ndarray:
+def bokeh_detection(img_divisions_count: int, input_path: str, output_path: str) -> np.ndarray:
     """
     ボケ量の検出と画像の保存
 
     Parameter
     ----------
-    number_of_img_divisions : int
+    img_divisions_count : int
         画像の分割数
     input_path : str
         入力画像の保存されたディレクトリのパス
@@ -472,7 +472,7 @@ def bokeh_detection(number_of_img_divisions: int, input_path: str, output_path: 
     bokeh_map_img : np.ndarray
         ボケ量マップ画像
     """
-    height = width = number_of_img_divisions
+    height = width = img_divisions_count
     files = os.listdir(input_path)
     count = len(files)
     img_array = []

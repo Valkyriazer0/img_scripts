@@ -55,7 +55,6 @@ def binary_gui(img_name: np.ndarray, binary_type: str = None) -> np.ndarray:
     -------
     thresh_img : np.ndarray
         2値化画像
-
     """
     def get_threshold(val: int):
         """
@@ -95,7 +94,7 @@ def binary_gui(img_name: np.ndarray, binary_type: str = None) -> np.ndarray:
     return thresh_img
 
 
-def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> list:
+def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> tuple:
     """
     重心計算
 
@@ -110,9 +109,12 @@ def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> list:
     -------
     coordinate : list
         重心座標
+    contours_count : int
+        検出した輪郭の個数
     """
     binary_img = binary_gui(img_name, "inversion")
-    contours, _ = cv2.findContours(binary_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(binary_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours_count = len(contours)
     result_img = img_name
     window_name = "center_of_gravity"
     coordinate = []
@@ -143,4 +145,4 @@ def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> list:
                 dict_writer.writeheader()
                 dict_writer.writerows(coordinate)
     cv2.destroyWindow(window_name)
-    return coordinate
+    return coordinate, contours_count
