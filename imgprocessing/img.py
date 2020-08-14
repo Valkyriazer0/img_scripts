@@ -9,7 +9,7 @@ import time
 from sklearn import preprocessing
 from tqdm import tqdm
 from win32api import GetSystemMetrics
-from imgprocessing.path import input_file_path_select, directory_path_select
+from imgprocessing.path import file_path_select, dir_path_select
 
 
 def load_img(input_img_path: str = None, img_type: str = "color_bgr") -> list:
@@ -29,7 +29,7 @@ def load_img(input_img_path: str = None, img_type: str = "color_bgr") -> list:
         入力画像のリスト
     """
     if input_img_path is None:
-        input_img_path_list = input_file_path_select()
+        input_img_path_list = file_path_select()
     else:
         input_img_path_list = input_img_path
 
@@ -145,7 +145,7 @@ def roi_select(img_name: np.ndarray, output_path: str = None) -> tuple:
             break
         elif k == ord('s'):
             if output_path is None:
-                output_path = directory_path_select(0)
+                output_path = dir_path_select(0)
             else:
                 pass
             cv2.imwrite(os.path.join(str(output_path) + "/" + "roi.png"), roi_img)

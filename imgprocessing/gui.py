@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from imgprocessing.img import window_set, roi_select
-from imgprocessing.path import directory_path_select
+from imgprocessing.path import dir_path_select
 from mpl_toolkits.mplot3d import Axes3D
 
 
@@ -135,7 +135,7 @@ def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> tuple:
             break
         elif k == ord('s'):
             if output_path is None:
-                output_path = directory_path_select(0)
+                output_path = dir_path_select(0)
             else:
                 pass
 
@@ -174,7 +174,7 @@ def roi2cof(img_name: np.ndarray, output_path: str = None):
         coordinate[i]['Y'] = coordinate[i]['Y'] + roi[1]
 
     if output_path is None:
-        output_path = directory_path_select(0)
+        output_path = dir_path_select(0)
     else:
         pass
 

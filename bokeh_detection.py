@@ -18,19 +18,19 @@ def main(kernel_size, gamma=1.0):
         ガンマ値
     """
     # 入力画像を取得
-    input_image_path = path.input_file_path_select()
+    input_image_path = path.file_path_select()
     input_img = img.load_img(input_image_path[0], "gray")
     # 画像のガンマ補正
     img_gamma = img.gamma_correction(input_img, gamma)
     # 画像のトリミング
     trim_img = img.trim(img_gamma, kernel_size)
     # 画像の分割と保存
-    output_split_img_path = path.directory_path_select(0)
+    output_split_img_path = path.dir_path_select(0)
     img.split(trim_img, kernel_size, output_split_img_path)
     # ボケ量マップの作成と保存
     number_of_kernel = trim_img.shape[0] // kernel_size
-    input_split_img_path = path.directory_path_select(1)
-    output_bokeh_img_path = path.directory_path_select(0)
+    input_split_img_path = path.dir_path_select(1)
+    output_bokeh_img_path = path.dir_path_select(0)
     img.bokeh_detection(number_of_kernel, input_split_img_path,
                         output_bokeh_img_path)
     return

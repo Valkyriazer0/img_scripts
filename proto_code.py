@@ -12,7 +12,7 @@ from win32api import GetSystemMetrics
 
 
 def p():
-    input_path = path.input_file_path_select()[0]
+    input_path = path.file_path_select()[0]
     img = img.load_img(input_path, "color_bgr")
     cv2.namedWindow("img", cv2.WINDOW_NORMAL)
     cv2.imshow("img", img)
