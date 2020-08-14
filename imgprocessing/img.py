@@ -9,7 +9,7 @@ import time
 from sklearn import preprocessing
 from tqdm import tqdm
 from win32api import GetSystemMetrics
-from imgprocessing.path_module import input_file_path_select, directory_path_select
+from imgprocessing.path import input_file_path_select, directory_path_select
 
 
 def load_img(input_img_path: str = None, img_type: str = "color_bgr") -> list:

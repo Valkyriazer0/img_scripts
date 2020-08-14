@@ -7,13 +7,13 @@ from imgprocessing.decorator import logger, stop_watch, line_notify
 import cv2
 import numpy as np
 import math
-from imgprocessing import img_module, path_module
+from imgprocessing import img, path
 from win32api import GetSystemMetrics
 
 
 def p():
-    input_path = path_module.input_file_path_select()[0]
-    img = img_module.load_img(input_path, "color_bgr")
+    input_path = path.input_file_path_select()[0]
+    img = img.load_img(input_path, "color_bgr")
     cv2.namedWindow("img", cv2.WINDOW_NORMAL)
     cv2.imshow("img", img)
     cv2.waitKey(0)
@@ -28,4 +28,4 @@ if __name__ == '__main__':
     # print(len(image1.shape))
     # print(image.shape[0])
     # print(image.shape[1])
-    img_module.roi_select(image1)
+    img.roi_select(image1)

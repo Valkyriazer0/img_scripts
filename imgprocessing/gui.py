@@ -7,8 +7,8 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from imgprocessing.img_module import window_set, roi_select
-from imgprocessing.path_module import directory_path_select
+from imgprocessing.img import window_set, roi_select
+from imgprocessing.path import directory_path_select
 from mpl_toolkits.mplot3d import Axes3D
 
 

@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import cv2
-from imgprocessing import img_module, path_module
+from imgprocessing import img, path
 
 
 def main():
@@ -44,8 +44,8 @@ def main():
     ]
 
     window = sg.Window("OpenCV Integration", layout, resizable=True, location=(800, 400))
-    input_path = path_module.input_file_path_select()[0]
-    img = img_module.load_img(input_path, "color_bgr")
+    input_path = path.input_file_path_select()[0]
+    img = img.load_img(input_path, "color_bgr")
 
     while True:
         event, values = window.read(timeout=20)
