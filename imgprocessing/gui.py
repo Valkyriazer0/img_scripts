@@ -40,6 +40,48 @@ def three_dim_graph(x: list, y: list, z: list):
     return
 
 
+def histogram(img_name: np.ndarray, hist_type: str = "bgr"):
+    """
+    ヒストグラム
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+    hist_type : str
+        bgr, hsv, gray
+    """
+    if hist_type == "bgr":
+        b, g, r = img_name[:, :, 0], img_name[:, :, 1], img_name[:, :, 2]
+        hist_b = cv2.calcHist([b], [0], None, [256], [0, 256])
+        hist_g = cv2.calcHist([g], [0], None, [256], [0, 256])
+        hist_r = cv2.calcHist([r], [0], None, [256], [0, 256])
+        plt.plot(hist_r, color='r', label="r")
+        plt.plot(hist_g, color='g', label="g")
+        plt.plot(hist_b, color='b', label="b")
+        plt.legend()
+        plt.show()
+    elif hist_type == "hsv":
+        hsv_img = cv2.cvtColor(img_name, cv2.COLOR_BGR2HSV)
+        h, s, v = hsv_img[:, :, 0], hsv_img[:, :, 1], hsv_img[:, :, 2]
+        hist_h = cv2.calcHist([h], [0], None, [256], [0, 256])
+        hist_s = cv2.calcHist([s], [0], None, [256], [0, 256])
+        hist_v = cv2.calcHist([v], [0], None, [256], [0, 256])
+        plt.plot(hist_h, color='r', label="h")
+        plt.plot(hist_s, color='g', label="s")
+        plt.plot(hist_v, color='b', label="v")
+        plt.legend()
+        plt.show()
+    elif hist_type == "gray":
+        gray_img = cv2.cvtColor(img_name, cv2.COLOR_BGR2GRAY)
+        hist_gray = cv2.calcHist([gray_img], [0], None, [256], [0, 256])
+        plt.plot(hist_gray, color='gray', label="gray")
+        plt.show()
+    else:
+        sys.exit(1)
+    return
+
+
 def binary_gui(img_name: np.ndarray, binary_type: str = None) -> np.ndarray:
     """
     GUIを用いた画像の2値化
