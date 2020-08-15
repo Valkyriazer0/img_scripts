@@ -1,5 +1,5 @@
 """本モジュールの説明
-   ファイル操作に使用する種々の関数群
+   パス操作に使用する種々の関数群
 """
 import os.path
 import sys
@@ -21,7 +21,7 @@ def file_path_select() -> list:
     """
     root = tkinter.Tk()
     root.withdraw()
-    file_type = [("画像ファイル", "*.jpg;*.png;*.bmp"), ("すべてのファイル", "*.*")]
+    file_type = [("画像ファイル", "*.jpg;*.png;*.bmp"), ("動画ファイル", "*.mp4;*.mov"), ("すべてのファイル", "*.*")]
     initial_dir = os.path.expanduser('~/Downloads')
     file_res = messagebox.askokcancel("入力ファイルの選択", "入力ファイルを選択してください")
     if file_res:
@@ -79,7 +79,7 @@ def files_rename(base_name: str = "img", delimiter: str = "_", digit: int = None
 
     Parameter
     ----------
-    file_name_pattern : str
+    base_name : str
         ファイル名
     delimiter : str
         区切り文字
@@ -97,7 +97,7 @@ def files_rename(base_name: str = "img", delimiter: str = "_", digit: int = None
     else:
         pass
 
-    file_name = base_name + delimiter + "{1:0" + str(digit) + "d}" + ".png"
+    file_name = base_name + delimiter + "{1:0" + str(digit) + "d}" + file_type
 
     if files:
         for i, old_name in enumerate(files):

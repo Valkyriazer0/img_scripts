@@ -9,45 +9,10 @@ import time
 from sklearn import preprocessing
 from tqdm import tqdm
 from win32api import GetSystemMetrics
-from imgprocessing.path import file_path_select, dir_path_select
+from .path import dir_path_select
 
 
-def load_img(input_img_path: str = None, img_type: str = "color_bgr") -> list:
-    """
-    画像の入力
-
-    Parameter
-    ----------
-    input_img_path : str
-        入力する画像のパス
-    img_type : str
-        color_bgr, color_rgb, color_hsv, gray
-
-    Return
-    -------
-    input_img_list : list
-        入力画像のリスト
-    """
-    if input_img_path is None:
-        input_img_path_list = file_path_select()
-    else:
-        input_img_path_list = input_img_path
-
-    input_img_list = []
-    for img_path in input_img_path_list:
-        input_img = cv2.imread(img_path)
-        cvt_type_dict = {"color_rgb": cv2.COLOR_BGR2RGB, "color_hsv": cv2.COLOR_BGR2HSV, "gray": cv2.COLOR_BGR2GRAY}
-        if img_type in cvt_type_dict:
-            input_img = cv2.cvtColor(input_img, cvt_type_dict[img_type])
-        elif img_type == "color_bgr":
-            pass
-        else:
-            sys.exit(1)
-        input_img_list.append(input_img)
-    return input_img_list
-
-
-def window_set(window_name: str, img_name: np.ndarray):
+def window_config(window_name: str, img_name: np.ndarray):
     """
     ウィンドウサイズの制御
 
@@ -126,7 +91,7 @@ def roi_select(img_name: np.ndarray, output_path: str = None) -> tuple:
 
     show_cross_hair = False
     from_center = False
-    window_set(source_window, img_name)
+    window_config(source_window, img_name)
     roi = cv2.selectROI(source_window, img_name, from_center, show_cross_hair)
     cv2.destroyWindow(source_window)
     roi_img = img_name[roi[1]:roi[1] + roi[3], roi[0]:roi[0] + roi[2]]
@@ -135,7 +100,7 @@ def roi_select(img_name: np.ndarray, output_path: str = None) -> tuple:
     else:
         pass
 
-    window_set(roi_window, roi_img)
+    window_config(roi_window, roi_img)
     cv2.imshow(roi_window, roi_img)
 
     while True:
@@ -217,7 +182,7 @@ def canny_not_binary(img_name: np.ndarray) -> np.ndarray:
     magnitude_img = cv2.magnitude(sobel_x_img, sobel_y_img)
     canny_img = cv2.convertScaleAbs(magnitude_img)
 
-    window_set("canny_img", canny_img)
+    window_config("canny_img", canny_img)
     cv2.imshow("canny_img", canny_img)
     cv2.waitKey(0)
     cv2.destroyWindow("canny_img")

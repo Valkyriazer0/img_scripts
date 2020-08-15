@@ -8,7 +8,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from imgprocessing.img import window_set, roi_select
+from imgprocessing.img import window_config, roi_select
 from imgprocessing.path import dir_path_select
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -120,7 +120,7 @@ def binary_gui(img_name: np.ndarray, binary_type: str = None) -> np.ndarray:
     else:
         gray_img = img_name
 
-    window_set(window_name, gray_img)
+    window_config(window_name, gray_img)
     threshold = 100
     cv2.createTrackbar(trackbar_name, window_name, threshold, 255, get_threshold)
     while True:
@@ -170,7 +170,7 @@ def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> tuple:
         result_img = cv2.circle(img_name, (x, y), 2, (255, 0, 0), -1)
         coordinate.append({"X": x, "Y": y})
 
-    window_set(window_name, result_img)
+    window_config(window_name, result_img)
     cv2.imshow(window_name, result_img)
 
     while True:
