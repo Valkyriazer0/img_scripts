@@ -8,9 +8,9 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from imgprocessing.img import window_config, roi_select
-from imgprocessing.path import dir_path_select
 from mpl_toolkits.mplot3d import Axes3D
+from .img import window_config, roi_select
+from .path import dir_path_select
 
 
 def three_dim_graph(x: list, y: list, z: list):
