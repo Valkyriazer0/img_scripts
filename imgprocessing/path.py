@@ -73,7 +73,7 @@ def dir_path_select(io_type: int) -> str:
     return directory_path
 
 
-def files_rename(file_name_pattern: str = "img", delimiter: str = "_", digit: int = None, file_type: str = ".png"):
+def files_rename(base_name: str = "img", delimiter: str = "_", digit: int = None, file_type: str = ".png"):
     """
     単一or複数のファイルのリネーム
 
@@ -97,7 +97,7 @@ def files_rename(file_name_pattern: str = "img", delimiter: str = "_", digit: in
     else:
         pass
 
-    file_name = file_name_pattern + delimiter + "{1:0" + str(digit) + "d}" + ".png"
+    file_name = base_name + delimiter + "{1:0" + str(digit) + "d}" + ".png"
 
     if files:
         for i, old_name in enumerate(files):
