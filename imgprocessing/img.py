@@ -198,6 +198,33 @@ def img_transform(img_name: np.ndarray, flip: int = None, scale: float = 1.0, ro
     return result_img
 
 
+def canny_not_binary(img_name: np.ndarray) -> np.ndarray:
+    """
+    2値化しないCanny法
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+
+    Return
+    -------
+    canny_img : np.ndarray
+        処理後の画像
+    """
+    sobel_x_img = cv2.Sobel(img_name, cv2.CV_64F, 1, 0, ksize=3)
+    sobel_y_img = cv2.Sobel(img_name, cv2.CV_64F, 0, 1, ksize=3)
+
+    magnitude_img = cv2.magnitude(sobel_x_img, sobel_y_img)
+    canny_img = cv2.convertScaleAbs(magnitude_img)
+
+    window_set("canny_img", canny_img)
+    cv2.imshow("canny_img", canny_img)
+    cv2.waitKey(0)
+    cv2.destroyWindow("canny_img")
+    return canny_img
+
+
 def blur_filter(img_name: np.ndarray, filter_type: str, kernel_size: int = 3) -> np.ndarray:
     """
     ぼかしフィルタ
