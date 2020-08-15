@@ -83,8 +83,7 @@ def color_cvt(img_name: np.ndarray, cvt_type: str = "bgr2rgb") -> np.ndarray:
     ----------
     img_name : np.ndarray
         入力画像
-    color_type : str
-        変換のタイプ
+    cvt_type : str
         bgr2rgb, bgr2hsv, bgr2gray, rgb2bgr,
         rgb2hsv, rgb2gray, hsv2bgr, hsv2rgb
 
@@ -234,7 +233,6 @@ def blur_filter(img_name: np.ndarray, filter_type: str, kernel_size: int = 3) ->
     img_name : np.ndarray
         入力画像
     filter_type : str
-        フィルタのタイプ
         average, gauss, bilateral
     kernel_size : int
         カーネルのサイズ
@@ -281,13 +279,13 @@ def highpass_filter(img_name: np.ndarray) -> np.ndarray:
 
 def open_close_denoise(img_name: np.ndarray, denoise_type: str = "opening", kernel_size: int = 5) -> np.ndarray:
     """
-    画像の入力
+    オープニング、クロージング処理によるデノイズ
 
     Parameter
     ----------
     img_name : np.ndarray
         入力画像（2値化画像）
-    img_type : str
+    denoise_type : str
         opening, closing
     kernel_size : int
         カーネルのサイズ
@@ -295,7 +293,7 @@ def open_close_denoise(img_name: np.ndarray, denoise_type: str = "opening", kern
     Return
     -------
     result_img : np.ndarray
-        入力画像のリスト
+        出力画像
     """
     kernel = np.ones((kernel_size, kernel_size), np.uint8)
     if denoise_type == "opening":

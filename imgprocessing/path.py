@@ -43,7 +43,7 @@ def dir_path_select(io_type: int) -> str:
     Parameter
     ----------
     io_type : int
-        input=1, output=0
+        input=1, output=0, other=-1
 
     Return
     -------
