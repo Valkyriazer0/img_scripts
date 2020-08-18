@@ -6,7 +6,7 @@ import numpy as np
 import sys
 
 
-def akaze_matching(src_img: np.ndarray, tmp_img: np.ndarray, matching_type: str = "akaze") -> np.ndarray:
+def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str = "akaze") -> np.ndarray:
     """
     A-KAZE特徴量
 
@@ -16,15 +16,17 @@ def akaze_matching(src_img: np.ndarray, tmp_img: np.ndarray, matching_type: str 
         元画像
     temp_img : np.ndarray
         比較画像
+    feature_type : str
+        特徴量の種類
 
     Return
     -------
     result_img : np.ndarray
         出力画像
     """
-    if matching_type == "akaze":
+    if feature_type == "akaze":
         detector = cv2.AKAZE_create()
-    elif matching_type == "orb":
+    elif feature_type == "orb":
         detector = cv2.ORB_create()
     else:
         sys.exit(1)
@@ -86,12 +88,3 @@ def zncc_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
     result_img = cv2.rectangle(src_img, (pt[0], pt[1]), (pt[0] + w, pt[1] + h), (0, 0, 200), 3)
 
     return result_img
-
-
-src = cv2.imread(r"C:\Users\zer0\Downloads\resize.png")
-tmp = cv2.imread(r"C:\Users\zer0\Downloads\roi\roi.png")
-tmp = cv2.GaussianBlur(tmp, (11, 11), 0)
-result = akaze_matching(src, tmp)
-cv2.imshow("img", result)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
