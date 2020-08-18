@@ -9,8 +9,152 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
-from .img import window_config, roi_select
+from .pre import window_config
 from .path import dir_path_select
+
+
+def roi_select(img_name: np.ndarray, output_path: str = None) -> tuple:
+    """
+    ROIの設定（とROI画像の保存）
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+    output_path : str
+        出力するディレクトリのパス
+
+    Return
+    -------
+    roi_img : np.ndarray
+        ROI画像
+    roi : tuple
+        ROI画像の全画像中での位置座標
+    """
+
+    source_window = "draw_rectangle"
+    roi_window = "region_of_image"
+
+    show_cross_hair = False
+    from_center = False
+    window_config(source_window, img_name)
+    roi = cv2.selectROI(source_window, img_name, from_center, show_cross_hair)
+    cv2.destroyWindow(source_window)
+    roi_img = img_name[roi[1]:roi[1] + roi[3], roi[0]:roi[0] + roi[2]]
+    if roi_img.size == 0:
+        sys.exit(1)
+    else:
+        pass
+
+    window_config(roi_window, roi_img)
+    cv2.imshow(roi_window, roi_img)
+
+    while True:
+        k = cv2.waitKey(1) & 0xFF
+        if k == 27 or cv2.getWindowProperty(roi_window, 0) == -1:
+            break
+        elif k == ord('s'):
+            if output_path is None:
+                output_path = dir_path_select(0)
+            else:
+                pass
+            cv2.imwrite(os.path.join(str(output_path) + "/" + "roi.png"), roi_img)
+            break
+
+    cv2.destroyWindow(roi_window)
+    return roi_img, roi
+
+
+def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> tuple:
+    """
+    重心計算
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+    output_path : str
+        出力するディレクトリのパス
+
+    Return
+    -------
+    coordinate : list
+        重心座標
+    contours_count : int
+        検出した輪郭の個数
+    """
+    binary_img = binary_gui(img_name, "inversion")
+    contours, hierarchy = cv2.findContours(binary_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours_count = len(contours)
+    result_img = img_name
+    window_name = "center_of_gravity"
+    coordinate = []
+
+    for c in contours:
+        m = cv2.moments(c)
+        x = int(m["m10"] / m["m00"])
+        y = int(m["m01"] / m["m00"])
+        result_img = cv2.circle(img_name, (x, y), 2, (255, 0, 0), -1)
+        coordinate.append({"X": x, "Y": y})
+
+    window_config(window_name, result_img)
+    cv2.imshow(window_name, result_img)
+
+    while True:
+        k = cv2.waitKey(1) & 0xFF
+        if k == 27 or cv2.getWindowProperty(window_name, 0) == -1:
+            break
+        elif k == ord('s'):
+            if output_path is None:
+                output_path = dir_path_select(0)
+            else:
+                pass
+
+            keys = coordinate[0].keys()
+            with open(os.path.join(str(output_path) + "/" + "coordinate.csv"), 'w', newline="") as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(coordinate)
+    cv2.destroyWindow(window_name)
+    return coordinate, contours_count
+
+
+def roi2cof(img_name: np.ndarray, output_path: str = None):
+    """
+    ROI画像を用いた重心の座標の計算
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+    output_path : str
+        出力するディレクトリのパス
+
+    Return
+    -------
+    coordinate : list
+        重心座標
+    """
+    roi_img, roi = roi_select(img_name)
+    coordinate, contours_count = center_of_gravity(roi_img)
+    print(coordinate)
+    print(roi)
+
+    for i in range(contours_count):
+        coordinate[i]['X'] = coordinate[i]['X'] + roi[0]
+        coordinate[i]['Y'] = coordinate[i]['Y'] + roi[1]
+
+    if output_path is None:
+        output_path = dir_path_select(0)
+    else:
+        pass
+
+    keys = coordinate[0].keys()
+    with open(os.path.join(str(output_path) + "/" + "coordinate.csv"), 'w', newline="") as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(coordinate)
+    return coordinate
 
 
 def three_dim_graph(x: list, y: list, z: list):
@@ -136,95 +280,3 @@ def binary_gui(img_name: np.ndarray, binary_type: str = None) -> np.ndarray:
     else:
         pass
     return thresh_img
-
-
-def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> tuple:
-    """
-    重心計算
-
-    Parameter
-    ----------
-    img_name : np.ndarray
-        入力画像
-    output_path : str
-        出力するディレクトリのパス
-
-    Return
-    -------
-    coordinate : list
-        重心座標
-    contours_count : int
-        検出した輪郭の個数
-    """
-    binary_img = binary_gui(img_name, "inversion")
-    contours, hierarchy = cv2.findContours(binary_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    contours_count = len(contours)
-    result_img = img_name
-    window_name = "center_of_gravity"
-    coordinate = []
-
-    for c in contours:
-        m = cv2.moments(c)
-        x = int(m["m10"] / m["m00"])
-        y = int(m["m01"] / m["m00"])
-        result_img = cv2.circle(img_name, (x, y), 2, (255, 0, 0), -1)
-        coordinate.append({"X": x, "Y": y})
-
-    window_config(window_name, result_img)
-    cv2.imshow(window_name, result_img)
-
-    while True:
-        k = cv2.waitKey(1) & 0xFF
-        if k == 27 or cv2.getWindowProperty(window_name, 0) == -1:
-            break
-        elif k == ord('s'):
-            if output_path is None:
-                output_path = dir_path_select(0)
-            else:
-                pass
-
-            keys = coordinate[0].keys()
-            with open(os.path.join(str(output_path) + "/" + "coordinate.csv"), 'w', newline="") as output_file:
-                dict_writer = csv.DictWriter(output_file, keys)
-                dict_writer.writeheader()
-                dict_writer.writerows(coordinate)
-    cv2.destroyWindow(window_name)
-    return coordinate, contours_count
-
-
-def roi2cof(img_name: np.ndarray, output_path: str = None):
-    """
-    ROI画像を用いた重心の座標の計算
-
-    Parameter
-    ----------
-    img_name : np.ndarray
-        入力画像
-    output_path : str
-        出力するディレクトリのパス
-
-    Return
-    -------
-    coordinate : list
-        重心座標
-    """
-    roi_img, roi = roi_select(img_name)
-    coordinate, contours_count = center_of_gravity(roi_img)
-    print(coordinate)
-    print(roi)
-
-    for i in range(contours_count):
-        coordinate[i]['X'] = coordinate[i]['X'] + roi[0]
-        coordinate[i]['Y'] = coordinate[i]['Y'] + roi[1]
-
-    if output_path is None:
-        output_path = dir_path_select(0)
-    else:
-        pass
-
-    keys = coordinate[0].keys()
-    with open(os.path.join(str(output_path) + "/" + "coordinate.csv"), 'w', newline="") as output_file:
-        dict_writer = csv.DictWriter(output_file, keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(coordinate)
-    return coordinate
