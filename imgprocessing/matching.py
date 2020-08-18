@@ -3,9 +3,10 @@
 """
 import cv2
 import numpy as np
+import sys
 
 
-def akaze_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
+def akaze_matching(src_img: np.ndarray, tmp_img: np.ndarray, matching_type: str = "akaze") -> np.ndarray:
     """
     A-KAZE特徴量
 
@@ -21,10 +22,15 @@ def akaze_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
     result_img : np.ndarray
         出力画像
     """
-    akaze = cv2.AKAZE_create()
+    if matching_type == "akaze":
+        detector = cv2.AKAZE_create()
+    elif matching_type == "orb":
+        detector = cv2.ORB_create()
+    else:
+        sys.exit(1)
 
-    kp1, des1 = akaze.detectAndCompute(src_img, None)
-    kp2, des2 = akaze.detectAndCompute(tmp_img, None)
+    kp1, des1 = detector.detectAndCompute(src_img, None)
+    kp2, des2 = detector.detectAndCompute(tmp_img, None)
 
     bf = cv2.BFMatcher()
 
