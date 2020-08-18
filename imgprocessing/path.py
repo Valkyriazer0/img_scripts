@@ -54,7 +54,7 @@ def dir_path_select(io_type: int) -> str:
     root.withdraw()
     initial_dir = os.path.expanduser('~/Downloads')
     cvt_type_dict = {1: ("入力ファイルの保存されたディレクトリの選択", "入力ファイルの保存されたディレクトリを選択してください"),
-                     0: ("出力ファイルの保存されたディレクトリの選択", "出力ファイルの保存されたディレクトリを選択してください"),
+                     0: ("出力ファイルを保存するディレクトリの選択", "出力ファイルを保存するディレクトリを選択してください"),
                      -1: ("処理を行うディレクトリの選択", "処理を行うディレクトリを選択してください")}
     if io_type in cvt_type_dict:
         directory_res = messagebox.askokcancel(cvt_type_dict[io_type][0], cvt_type_dict[io_type][1])
