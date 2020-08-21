@@ -1,11 +1,12 @@
 """本モジュールの説明
    前処理に使用する種々の関数群
 """
-import cv2
-import numpy as np
 import os.path
 import sys
 import time
+
+import cv2
+import numpy as np
 from tqdm import tqdm
 from win32api import GetSystemMetrics
 

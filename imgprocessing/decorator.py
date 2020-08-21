@@ -2,8 +2,9 @@
    種々のデコレータ群
 """
 import time
-import requests
 from functools import wraps
+
+import requests
 
 
 def logger(func):

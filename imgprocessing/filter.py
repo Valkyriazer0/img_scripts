@@ -1,12 +1,14 @@
 """本モジュールの説明
    フィルター処理に使用する種々の関数群
 """
-import cv2
-import numpy as np
 import sys
 import time
+
+import cv2
+import numpy as np
 from tqdm import tqdm
-from .pre import window_config
+
+from .preprocess import window_config
 
 
 def canny_not_binary(img_name: np.ndarray) -> np.ndarray:
@@ -89,36 +91,32 @@ def unsharp_masking(img_name: np.ndarray) -> np.ndarray:
     return result_img
 
 
-def lowpass_filter(src, a=0.5):
-    # 高速フーリエ変換(2次元)
-    src = np.fft.fft2(src)
+def low_pass_filter(img_name: np.ndarray, kernel_size: float = 0.5) -> np.ndarray:
+    """
+    ローパスフィルタ
 
-    # 画像サイズ
-    h, w = src.shape
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+    kernel_size : float
+        カーネルサイズ
 
-    # 画像の中心座標
+    Return
+    -------
+    result_img : np.ndarray
+        処理後の画像
+    """
+    img_name = np.fft.fft2(img_name)
+    h, w = img_name.shape
     cy, cx = int(h / 2), int(w / 2)
-
-    # フィルタのサイズ(矩形の高さと幅)
-    rh, rw = int(a * cy), int(a * cx)
-
-    # 第1象限と第3象限、第1象限と第4象限を入れ替え
-    fsrc = np.fft.fftshift(src)
-
-    # 入力画像と同じサイズで値0の配列を生成
-    fdst = np.zeros(src.shape, dtype=complex)
-
-    # 中心部分の値だけ代入（中心部分以外は0のまま）
-    fdst[cy - rh:cy + rh, cx - rw:cx + rw] = fsrc[cy - rh:cy + rh, cx - rw:cx + rw]
-
-    # 第1象限と第3象限、第1象限と第4象限を入れ替え(元に戻す)
-    fdst = np.fft.fftshift(fdst)
-
-    # 高速逆フーリエ変換
-    dst = np.fft.ifft2(fdst)
+    rh, rw = int(kernel_size * cy), int(kernel_size * cx)
+    f_src = np.fft.fftshift(img_name)
+    f_dst = np.zeros(img_name.shape, dtype=complex)
+    f_dst[cy - rh:cy + rh, cx - rw:cx + rw] = f_src[cy - rh:cy + rh, cx - rw:cx + rw]
+    f_dst = np.fft.fftshift(f_dst)
+    dst = np.fft.ifft2(f_dst)
     result_img = np.uint8(dst.real)
-
-    # 実部の値のみを取り出し、符号なし整数型に変換して返す
     return result_img
 
 

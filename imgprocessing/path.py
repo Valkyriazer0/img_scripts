@@ -1,12 +1,12 @@
 """本モジュールの説明
    パス操作に使用する種々の関数群
 """
+import glob
+import math
 import os.path
 import sys
-import tkinter
-import glob
 import time
-import math
+import tkinter
 from tkinter import filedialog, messagebox
 
 

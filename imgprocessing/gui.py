@@ -1,16 +1,18 @@
 """本モジュールの説明
    GUI操作を行う種々の関数群
 """
-import cv2
+import csv
 import os
 import sys
-import csv
-import numpy as np
+
+import cv2
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
-from .pre import window_config
+
 from .path import dir_path_select
+from .preprocess import window_config
 
 
 def roi_select(img_name: np.ndarray, output_path: str = None) -> tuple:

@@ -1,9 +1,10 @@
 """本モジュールの説明
    テンプレートマッチングに使用する種々の関数群
 """
+import sys
+
 import cv2
 import numpy as np
-import sys
 
 
 def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str = "akaze") -> np.ndarray:

@@ -1,10 +1,11 @@
 """本モジュールの説明
    検出に使用する種々の関数群
 """
-import cv2
-import numpy as np
 import os.path
 import time
+
+import cv2
+import numpy as np
 from sklearn import preprocessing
 from tqdm import tqdm
 
