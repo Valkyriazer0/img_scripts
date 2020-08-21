@@ -103,7 +103,7 @@ def save_sequence_img(img_list: list, base_name: str = "", delimiter: str = "_",
         pass
 
     digit = int(math.log10(len(img_list)) + 1) + 1
-    file_name = base_name + delimiter + "{1:0" + str(digit) + "d}" + file_type
+    file_name = base_name + delimiter + "{0:0" + str(digit) + "d}" + file_type
 
     for i, img in enumerate(img_list):
         cv2.imwrite(os.path.join(str(output_path) + "/" + file_name).format(i + 1), img)

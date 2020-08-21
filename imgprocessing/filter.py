@@ -69,7 +69,7 @@ def blur_filter(img_name: np.ndarray, filter_type: str, kernel_size: int = 3) ->
 
 def unsharp_masking(img_name: np.ndarray) -> np.ndarray:
     """
-    ハイパスフィルタ
+    鮮鋭化フィルタ
 
     Parameter
     ----------
@@ -86,6 +86,39 @@ def unsharp_masking(img_name: np.ndarray) -> np.ndarray:
                        [-1, -1, -1]], np.float32)
 
     result_img = cv2.filter2D(img_name, -1, kernel)
+    return result_img
+
+
+def lowpass_filter(src, a=0.5):
+    # 高速フーリエ変換(2次元)
+    src = np.fft.fft2(src)
+
+    # 画像サイズ
+    h, w = src.shape
+
+    # 画像の中心座標
+    cy, cx = int(h / 2), int(w / 2)
+
+    # フィルタのサイズ(矩形の高さと幅)
+    rh, rw = int(a * cy), int(a * cx)
+
+    # 第1象限と第3象限、第1象限と第4象限を入れ替え
+    fsrc = np.fft.fftshift(src)
+
+    # 入力画像と同じサイズで値0の配列を生成
+    fdst = np.zeros(src.shape, dtype=complex)
+
+    # 中心部分の値だけ代入（中心部分以外は0のまま）
+    fdst[cy - rh:cy + rh, cx - rw:cx + rw] = fsrc[cy - rh:cy + rh, cx - rw:cx + rw]
+
+    # 第1象限と第3象限、第1象限と第4象限を入れ替え(元に戻す)
+    fdst = np.fft.fftshift(fdst)
+
+    # 高速逆フーリエ変換
+    dst = np.fft.ifft2(fdst)
+    result_img = np.uint8(dst.real)
+
+    # 実部の値のみを取り出し、符号なし整数型に変換して返す
     return result_img
 
 

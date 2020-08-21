@@ -55,7 +55,7 @@ def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str
     print("tmp")
     print(img2_pt)
     print(len(img2_pt))
-
+    print(len(good_feature))
     return result_img
 
 
