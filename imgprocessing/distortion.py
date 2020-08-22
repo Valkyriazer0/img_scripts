@@ -1,10 +1,12 @@
 """本モジュールの説明
    テンプレートマッチングに使用する種々の関数群
 """
+import os
+
 import cv2
 import numpy as np
+
 from imgprocessing.io import load_img
-import os
 
 
 def lens_distortion(square_size: float = 2.1, pattern_size: list = (9, 6), reference_img: int = 38):
@@ -46,8 +48,14 @@ def lens_distortion(square_size: float = 2.1, pattern_size: list = (9, 6), refer
     print("calculating camera parameter...")
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_points, img_points, imgs[0].shape[::-1], None, None)
 
-    np.save("numpy_file/mtx", mtx)
-    np.save("numpy_file/dist", dist.ravel())
+    new_path = "../numpy_file"
+    if not os.path.exists(new_path):
+        os.mkdir(new_path)
+    else:
+        pass
+
+    np.save(r"../numpy_file/mtx", mtx)
+    np.save(r"../numpy_file/dist", dist.ravel())
     print("RMS = ", ret)
     print("mtx = \n", mtx)
     print("dist = ", dist.ravel())
@@ -70,7 +78,7 @@ def calibrate_img(img_name: np.ndarray, output_path: str = None) -> np.ndarray:
     result_img : np.ndarray
         出力画像
     """
-    result_img = cv2.undistort(img_name, r"numpy_file/mtx.npy", r"numpy_file/dist.npy")
+    result_img = cv2.undistort(img_name, r"../numpy_file/mtx.npy", r"../numpy_file/dist.npy")
     if output_path is not None:
         cv2.imwrite(os.path.join(str(output_path) + "/" + "correction.png"), result_img)
     return result_img
