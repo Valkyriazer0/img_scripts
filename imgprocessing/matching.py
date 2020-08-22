@@ -5,6 +5,7 @@ import sys
 
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str = "akaze") -> np.ndarray:
@@ -89,3 +90,107 @@ def zncc_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
     result_img = cv2.rectangle(src_img, (pt[0], pt[1]), (pt[0] + w, pt[1] + h), (0, 0, 200), 3)
 
     return result_img
+
+
+def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
+    """
+    回転不変位相限定相関法
+
+    Parameter
+    ----------
+    src_img : np.ndarray
+        元画像
+    temp_img : np.ndarray
+        比較画像
+    r : int
+        半径
+
+    Return
+    -------
+    shift : tuple
+        シフト量
+    correlation : float
+        相関係数
+    """
+    h, w = src_img.shape
+    hy = np.hanning(h)
+    hx = np.hanning(w)
+    hw = hy.reshape(h, 1) * hx
+
+    # 2次元FFT処理
+    f = np.fft.fft2(src_img * hw)
+    g = np.fft.fft2(tmp_img * hw)
+    g_ = np.conj(g)
+    r = f * g_ / np.abs(f * g_)
+    fft_r = np.real(np.fft.ifft2(r))
+
+    x, y = np.mgrid[:fft_r.shape[0], :fft_r.shape[1]]
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.set_xlabel("X-axis")
+    ax.set_ylabel("Y-axis")
+    ax.set_zlabel("Z-axis")
+    surf = ax.plot_surface(x, y, fft_r, cmap='bwr', linewidth=0)
+    fig.colorbar(surf)
+    fig.show()
+    plt.show()
+
+    peak = np.unravel_index(np.argmax(fft_r), fft_r.shape)
+    shift = [peak[1], peak[0]]
+    shift = tuple(shift)
+    correlation = fft_r[peak]
+    return shift, correlation
+
+
+def ripoc(src_img: np.ndarray, tmp_img: np.ndarray, r: int = None) -> tuple:
+    """
+    回転不変位相限定相関法
+
+    Parameter
+    ----------
+    src_img : np.ndarray
+        元画像
+    temp_img : np.ndarray
+        比較画像
+    r : int
+        半径
+
+    Return
+    -------
+    shift : tuple
+        シフト量
+    angle : float
+        回転量
+    scale : float
+        拡大率
+    correlation : float
+        相関係数
+    """
+    f = np.asarray(cv2.cvtColor(src_img, cv2.COLOR_BGR2GRAY), 'float')
+    g = np.asarray(cv2.cvtColor(tmp_img, cv2.COLOR_BGR2GRAY), 'float')
+
+    h, w = f.shape
+    hy = np.hanning(h)
+    hx = np.hanning(w)
+    hw = hy.reshape(h, 1) * hx
+
+    f_a = np.fft.fftshift(np.log(np.abs(np.fft.fft2(f * hw))))
+    f_b = np.fft.fftshift(np.log(np.abs(np.fft.fft2(g * hw))))
+
+    if not r:
+        l2 = np.sqrt(w * w + h * h)
+        r = l2 / np.log(l2)
+
+    center = (w / 2, h / 2)
+    flags = cv2.INTER_LANCZOS4 + cv2.WARP_POLAR_LOG
+    p_a = cv2.warpPolar(f_a, (w, h), center, r, flags)
+    p_b = cv2.warpPolar(f_b, (w, h), center, r, flags)
+    (x, y), e = cv2.phaseCorrelate(p_a, p_b, hw)
+
+    angle = y * 360 / h
+    scale = np.e ** (x / r)
+    m = cv2.getRotationMatrix2D(center, angle, scale)
+    t_b = cv2.warpAffine(g, m, (w, h))
+    *shift, correlation = cv2.phaseCorrelate(f, t_b)
+    shift = tuple(shift)
+    return shift, angle, scale, correlation
