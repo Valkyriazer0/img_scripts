@@ -11,7 +11,7 @@ import numpy as np
 import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
 
-from .path import dir_path_select
+from common.path import dir_path_select
 from .preprocess import window_config
 
 

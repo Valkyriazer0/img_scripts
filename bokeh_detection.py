@@ -1,8 +1,9 @@
 """本スクリプトの説明
    ボケ量マップの取得を行うスクリプト
 """
-from imgprocessing import preprocess, path, io
-from imgprocessing.decorator import stop_watch
+from imgprocessing import preprocess, io, filter, detector
+from common import path
+from common.decorator import stop_watch
 
 
 @stop_watch
@@ -21,7 +22,7 @@ def main(kernel_size, gamma=1.0):
     input_image_path = path.file_path_select()
     input_img = io.load_img(input_image_path[0], "gray")
     # 画像のガンマ補正
-    img_gamma = preprocess.gamma_correction(input_img[0], gamma)
+    img_gamma = filter.gamma_correction(input_img[0], gamma)
     # 画像のトリミング
     trim_img = preprocess.trim(img_gamma, kernel_size)
     # 画像の分割と保存
@@ -31,8 +32,8 @@ def main(kernel_size, gamma=1.0):
     number_of_kernel = trim_img.shape[0] // kernel_size
     input_split_img_path = path.dir_path_select(1)
     output_bokeh_img_path = path.dir_path_select(0)
-    preprocess.bokeh_detection(number_of_kernel, input_split_img_path,
-                               output_bokeh_img_path)
+    detector.bokeh_detection(number_of_kernel, input_split_img_path,
+                             output_bokeh_img_path)
     return
 
 

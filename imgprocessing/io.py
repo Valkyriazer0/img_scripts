@@ -7,7 +7,7 @@ import sys
 
 import cv2
 
-from .path import dir_path_select, file_path_select
+from common.path import dir_path_select, file_path_select
 
 
 def load_img(input_img_path: str = None, img_type: str = "color_bgr") -> list:
