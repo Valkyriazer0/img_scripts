@@ -1,7 +1,7 @@
 """本スクリプトの説明
    ボケ量マップの取得を行うスクリプト
 """
-from imgprocessing import preprocess, io, filter, detector
+from imgprocessing import preprocess, io_img, filter, detector
 from common import path
 from common.decorator import stop_watch
 
@@ -20,7 +20,7 @@ def main(kernel_size, gamma=1.0):
     """
     # 入力画像を取得
     input_image_path = path.file_path_select()
-    input_img = io.load_img(input_image_path[0], "gray")
+    input_img = io_img.load_img(input_image_path[0], "gray")
     # 画像のガンマ補正
     img_gamma = filter.gamma_correction(input_img[0], gamma)
     # 画像のトリミング
