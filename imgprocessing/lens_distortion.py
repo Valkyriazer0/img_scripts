@@ -6,7 +6,7 @@ import os
 import cv2
 import numpy as np
 
-from imgprocessing.io_img import load_img
+from imgprocessing.io import load_img
 
 
 def lens_distortion(square_size: float = 2.1, pattern_size: list = (9, 6), reference_img: int = 38):

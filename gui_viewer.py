@@ -1,7 +1,8 @@
 import PySimpleGUI as sg
 import cv2
-from imgprocessing.io_img import load_img
+
 from common.path import file_path_select
+from imgprocessing.io import load_img
 
 
 def main():
