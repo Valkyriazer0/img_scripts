@@ -9,6 +9,8 @@ import numpy as np
 from sklearn import preprocessing
 from tqdm import tqdm
 
+from .preprocess import gray_check
+
 
 def line_detection(img_name: np.ndarray, threshold1: int, threshold2: int) -> np.ndarray:
     """
@@ -28,7 +30,7 @@ def line_detection(img_name: np.ndarray, threshold1: int, threshold2: int) -> np
     line_img : np.ndarray
         線検出画像
     """
-    gray = cv2.cvtColor(img_name, cv2.COLOR_BGR2GRAY)
+    gray = gray_check(img_name)
     edges = cv2.Canny(gray, threshold1, threshold2, L2gradient=True)
 
     lines = cv2.HoughLines(edges, 1, np.pi / 180, 100)
@@ -85,7 +87,7 @@ def circle_detection(img_name: np.ndarray, min_dist: int, threshold1: int, thres
     circle_img : np.ndarray
         円検出画像
     """
-    gray = cv2.cvtColor(img_name, cv2.COLOR_BGR2GRAY)
+    gray = gray_check(img_name)
     circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, dp=1.0, minDist=min_dist, param1=threshold1, param2=threshold2)
 
     if circles is not None:

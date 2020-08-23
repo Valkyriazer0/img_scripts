@@ -66,6 +66,27 @@ def color_cvt(img_name: np.ndarray, cvt_type: str = "bgr2rgb") -> np.ndarray:
     return cvt_img
 
 
+def gray_check(img_name):
+    """
+    グレーイメージかどうかチェックする
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+
+    Return
+    -------
+    result_img : np.ndarray
+        処理後の画像
+    """
+    if len(img_name.shape) == 3:
+        result_img = cv2.cvtColor(img_name, cv2.COLOR_BGR2GRAY)
+    else:
+        result_img = img_name
+    return result_img
+
+
 def img_transform(img_name: np.ndarray, flip: int = None, scale: float = 1.0, rotate: int = 0) -> np.ndarray:
     """
     画像の線形変換

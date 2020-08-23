@@ -7,6 +7,8 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
+from .preprocess import gray_check
+
 
 def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str = "akaze") -> np.ndarray:
     """
@@ -16,7 +18,7 @@ def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str
     ----------
     src_img : np.ndarray
         元画像
-    temp_img : np.ndarray
+    tmp_img : np.ndarray
         比較画像
     feature_type : str
         特徴量の種類
@@ -48,15 +50,14 @@ def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str
 
     result_img = cv2.drawMatchesKnn(src_img, kp1, tmp_img, kp2, good_feature, None, flags=2)
 
-    img1_pt = [list(map(int, kp1[m[0].queryIdx].pt)) for m in matches]
-    img2_pt = [list(map(int, kp2[m[0].trainIdx].pt)) for m in matches]
+    src_img_pt = [list(map(int, kp1[m[0].queryIdx].pt)) for m in matches]
+    tmp_img_pt = [list(map(int, kp2[m[0].trainIdx].pt)) for m in matches]
 
-    print("src")
-    print(img1_pt)
-    print(len(img1_pt))
-    print("tmp")
-    print(img2_pt)
-    print(len(img2_pt))
+    print(feature_type)
+    print("src" + str(src_img_pt))
+    print(len(src_img_pt))
+    print("tmp" + str(tmp_img_pt))
+    print(len(tmp_img_pt))
     print(len(good_feature))
     return result_img
 
@@ -77,12 +78,12 @@ def zncc_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
     result_img : np.ndarray
         出力画像
     """
-    gray_src_img = cv2.cvtColor(src_img, cv2.COLOR_RGB2GRAY)
-    gray_tmp_img = cv2.cvtColor(tmp_img, cv2.COLOR_RGB2GRAY)
+    src_img = gray_check(src_img)
+    tmp_img = gray_check(tmp_img)
 
-    h, w = gray_tmp_img.shape
+    h, w = tmp_img.shape
 
-    match = cv2.matchTemplate(gray_src_img, gray_tmp_img, cv2.TM_CCOEFF_NORMED)
+    match = cv2.matchTemplate(src_img, tmp_img, cv2.TM_CCOEFF_NORMED)
     min_value, max_value, min_pt, max_pt = cv2.minMaxLoc(match)
     pt = max_pt
 
@@ -112,14 +113,17 @@ def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
     correlation : float
         相関係数
     """
-    h, w = src_img.shape
+    gray_src_img = gray_check(src_img)
+    gray_tmp_img = gray_check(tmp_img)
+
+    h, w = gray_src_img.shape
     hy = np.hanning(h)
     hx = np.hanning(w)
     hw = hy.reshape(h, 1) * hx
 
     # 2次元FFT処理
-    f = np.fft.fft2(src_img * hw)
-    g = np.fft.fft2(tmp_img * hw)
+    f = np.fft.fft2(gray_src_img * hw)
+    g = np.fft.fft2(gray_tmp_img * hw)
     g_ = np.conj(g)
     r = f * g_ / np.abs(f * g_)
     fft_r = np.real(np.fft.ifft2(r))
@@ -166,8 +170,11 @@ def ripoc(src_img: np.ndarray, tmp_img: np.ndarray, r: int = None) -> tuple:
     correlation : float
         相関係数
     """
-    f = np.asarray(cv2.cvtColor(src_img, cv2.COLOR_BGR2GRAY), 'float')
-    g = np.asarray(cv2.cvtColor(tmp_img, cv2.COLOR_BGR2GRAY), 'float')
+    gray_src_img = gray_check(src_img)
+    gray_tmp_img = gray_check(tmp_img)
+
+    f = np.asarray(gray_src_img, 'float')
+    g = np.asarray(gray_tmp_img, 'float')
 
     h, w = f.shape
     hy = np.hanning(h)

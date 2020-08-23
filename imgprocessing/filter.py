@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-from .preprocess import window_config
+from .preprocess import gray_check, window_config
 
 
 def canny_not_binary(img_name: np.ndarray) -> np.ndarray:
@@ -25,8 +25,9 @@ def canny_not_binary(img_name: np.ndarray) -> np.ndarray:
     canny_img : np.ndarray
         処理後の画像
     """
-    sobel_x_img = cv2.Sobel(img_name, cv2.CV_64F, 1, 0, ksize=3)
-    sobel_y_img = cv2.Sobel(img_name, cv2.CV_64F, 0, 1, ksize=3)
+    gray_img = gray_check(img_name)
+    sobel_x_img = cv2.Sobel(gray_img, cv2.CV_64F, 1, 0, ksize=3)
+    sobel_y_img = cv2.Sobel(gray_img, cv2.CV_64F, 0, 1, ksize=3)
 
     magnitude_img = cv2.magnitude(sobel_x_img, sobel_y_img)
     canny_img = cv2.convertScaleAbs(magnitude_img)
@@ -107,11 +108,12 @@ def low_pass_filter(img_name: np.ndarray, kernel_size: float = 0.5) -> np.ndarra
     result_img : np.ndarray
         処理後の画像
     """
-    img_name = np.fft.fft2(img_name)
+    gray_img = gray_check(img_name)
+    f_img = np.fft.fft2(gray_img)
     h, w = img_name.shape
     cy, cx = int(h / 2), int(w / 2)
     rh, rw = int(kernel_size * cy), int(kernel_size * cx)
-    f_src = np.fft.fftshift(img_name)
+    f_src = np.fft.fftshift(f_img)
     f_dst = np.zeros(img_name.shape, dtype=complex)
     f_dst[cy - rh:cy + rh, cx - rw:cx + rw] = f_src[cy - rh:cy + rh, cx - rw:cx + rw]
     f_dst = np.fft.fftshift(f_dst)
