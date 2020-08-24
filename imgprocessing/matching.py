@@ -57,8 +57,6 @@ def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str
     print("src" + str(src_img_pt))
     print(len(src_img_pt))
     print("tmp" + str(tmp_img_pt))
-    print(len(tmp_img_pt))
-    print(len(good_feature))
     return result_img
 
 
@@ -87,7 +85,6 @@ def zncc_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
     min_value, max_value, min_pt, max_pt = cv2.minMaxLoc(match)
     pt = max_pt
 
-    # テンプレートマッチングの結果を出力
     result_img = cv2.rectangle(src_img, (pt[0], pt[1]), (pt[0] + w, pt[1] + h), (0, 0, 200), 3)
 
     return result_img
@@ -95,7 +92,7 @@ def zncc_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
 
 def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
     """
-    回転不変位相限定相関法
+    位相限定相関法
 
     Parameter
     ----------
@@ -103,8 +100,6 @@ def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
         元画像
     temp_img : np.ndarray
         比較画像
-    r : int
-        半径
 
     Return
     -------
@@ -121,7 +116,6 @@ def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
     hx = np.hanning(w)
     hw = hy.reshape(h, 1) * hx
 
-    # 2次元FFT処理
     f = np.fft.fft2(gray_src_img * hw)
     g = np.fft.fft2(gray_tmp_img * hw)
     g_ = np.conj(g)
@@ -198,6 +192,5 @@ def ripoc(src_img: np.ndarray, tmp_img: np.ndarray, r: int = None) -> tuple:
     scale = np.e ** (x / r)
     m = cv2.getRotationMatrix2D(center, angle, scale)
     t_b = cv2.warpAffine(g, m, (w, h))
-    *shift, correlation = cv2.phaseCorrelate(f, t_b)
-    shift = tuple(shift)
+    shift, correlation = cv2.phaseCorrelate(f, t_b, hw)
     return shift, angle, scale, correlation

@@ -66,7 +66,7 @@ def color_cvt(img_name: np.ndarray, cvt_type: str = "bgr2rgb") -> np.ndarray:
     return cvt_img
 
 
-def gray_check(img_name):
+def gray_check(img_name: np.ndarray) -> np.ndarray:
     """
     グレーイメージかどうかチェックする
 
@@ -85,6 +85,28 @@ def gray_check(img_name):
     else:
         result_img = img_name
     return result_img
+
+
+def rgb_separator(img_name: np.ndarray) -> list:
+    """
+    rgbを分離する
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+
+    Return
+    -------
+    result_img_list : list
+        rgbで分割した画像のリスト
+    """
+    channel_indices = range(img_name.shape[2])
+    result_img_list = []
+    for channel_index in channel_indices:
+        channel_img = img_name[:, :, channel_index]
+        result_img_list.append(channel_img)
+    return result_img_list
 
 
 def img_transform(img_name: np.ndarray, flip: int = None, scale: float = 1.0, rotate: int = 0) -> np.ndarray:
@@ -157,7 +179,7 @@ def trim(img_name: np.ndarray, kernel_size: int, output_path: str = None) -> np.
     height_margin = (img_name.shape[0] - height) // 2
     width_margin = (img_name.shape[1] - width) // 2
     trimming_img = img_name[height_margin:(img_name.shape[0] - height_margin),
-                            width_margin:(img_name.shape[1] - width_margin)]
+                   width_margin:(img_name.shape[1] - width_margin)]
     if output_path is not None:
         cv2.imwrite(os.path.join(str(output_path) + "/" + "trimming.png"), trimming_img)
     return trimming_img
