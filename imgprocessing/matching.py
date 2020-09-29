@@ -110,6 +110,8 @@ def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
     """
     gray_src_img = gray_check(src_img)
     gray_tmp_img = gray_check(tmp_img)
+    gray_src_img = np.asarray(gray_src_img, 'float')
+    gray_tmp_img = np.asarray(gray_tmp_img, 'float')
 
     h, w = gray_src_img.shape
     hy = np.hanning(h)
@@ -118,20 +120,31 @@ def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
 
     f = np.fft.fft2(gray_src_img * hw)
     g = np.fft.fft2(gray_tmp_img * hw)
+
     g_ = np.conj(g)
     r = f * g_ / np.abs(f * g_)
+
+    kernel_size = 0.9
+    h, w = gray_src_img.shape
+    cy, cx = int(h / 2), int(w / 2)
+    rh, rw = int(kernel_size * cy), int(kernel_size * cx)
+    r_shift = np.fft.fftshift(r)
+    r_dst = np.zeros(gray_src_img.shape, dtype=complex)
+    r_dst[cy - rh:cy + rh, cx - rw:cx + rw] = r_shift[cy - rh:cy + rh, cx - rw:cx + rw]
+    r = np.fft.fftshift(r_dst)
     fft_r = np.real(np.fft.ifft2(r))
 
-    x, y = np.mgrid[:fft_r.shape[0], :fft_r.shape[1]]
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.set_xlabel("X-axis")
-    ax.set_ylabel("Y-axis")
-    ax.set_zlabel("Z-axis")
-    surf = ax.plot_surface(x, y, fft_r, cmap='bwr', linewidth=0)
-    fig.colorbar(surf)
-    fig.show()
-    plt.show()
+    # x, y = np.mgrid[:fft_r.shape[0], :fft_r.shape[1]]
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    # ax.set_xlabel("X-axis")
+    # ax.set_ylabel("Y-axis")
+    # ax.set_zlabel("Z-axis")
+    # ax.set_zlim(-0.01, 1)
+    # surf = ax.plot_surface(x, y, fft_r, cmap='bwr', linewidth=0)
+    # fig.colorbar(surf)
+    # fig.show()
+    # plt.show()
 
     peak = np.unravel_index(np.argmax(fft_r), fft_r.shape)
     shift = [peak[1], peak[0]]
@@ -167,30 +180,30 @@ def ripoc(src_img: np.ndarray, tmp_img: np.ndarray, r: int = None) -> tuple:
     gray_src_img = gray_check(src_img)
     gray_tmp_img = gray_check(tmp_img)
 
-    f = np.asarray(gray_src_img, 'float')
-    g = np.asarray(gray_tmp_img, 'float')
+    gray_src_img = np.asarray(gray_src_img, 'float')
+    gray_tmp_img = np.asarray(gray_tmp_img, 'float')
 
-    h, w = f.shape
+    h, w = gray_src_img.shape
     hy = np.hanning(h)
     hx = np.hanning(w)
     hw = hy.reshape(h, 1) * hx
 
-    f_a = np.fft.fftshift(np.log(np.abs(np.fft.fft2(f * hw))))
-    f_b = np.fft.fftshift(np.log(np.abs(np.fft.fft2(g * hw))))
+    f = np.fft.fftshift(np.log(np.abs(np.fft.fft2(gray_src_img * hw))))
+    g = np.fft.fftshift(np.log(np.abs(np.fft.fft2(gray_tmp_img * hw))))
 
     if not r:
-        l2 = np.sqrt(w * w + h * h)
-        r = l2 / np.log(l2)
+        l_2 = np.sqrt(w * w + h * h)
+        r = l_2 / np.log(l_2)
 
     center = (w / 2, h / 2)
     flags = cv2.INTER_LANCZOS4 + cv2.WARP_POLAR_LOG
-    p_a = cv2.warpPolar(f_a, (w, h), center, r, flags)
-    p_b = cv2.warpPolar(f_b, (w, h), center, r, flags)
-    (x, y), e = cv2.phaseCorrelate(p_a, p_b, hw)
+    f_p = cv2.warpPolar(f, (w, h), center, r, flags)
+    g_p = cv2.warpPolar(g, (w, h), center, r, flags)
+    (x, y), e = cv2.phaseCorrelate(f_p, g_p, hw)
 
     angle = y * 360 / h
     scale = np.e ** (x / r)
     m = cv2.getRotationMatrix2D(center, angle, scale)
-    t_b = cv2.warpAffine(g, m, (w, h))
-    shift, correlation = cv2.phaseCorrelate(f, t_b, hw)
+    gray_tmp_img = cv2.warpAffine(gray_tmp_img, m, (w, h))
+    shift, correlation = cv2.phaseCorrelate(gray_src_img, gray_tmp_img, hw)
     return shift, angle, scale, correlation

@@ -179,7 +179,7 @@ def trim(img_name: np.ndarray, kernel_size: int, output_path: str = None) -> np.
     height_margin = (img_name.shape[0] - height) // 2
     width_margin = (img_name.shape[1] - width) // 2
     trimming_img = img_name[height_margin:(img_name.shape[0] - height_margin),
-                   width_margin:(img_name.shape[1] - width_margin)]
+                            width_margin:(img_name.shape[1] - width_margin)]
     if output_path is not None:
         cv2.imwrite(os.path.join(str(output_path) + "/" + "trimming.png"), trimming_img)
     return trimming_img

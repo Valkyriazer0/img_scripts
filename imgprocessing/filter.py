@@ -110,11 +110,11 @@ def low_pass_filter(img_name: np.ndarray, kernel_size: float = 0.5) -> np.ndarra
     """
     gray_img = gray_check(img_name)
     f_img = np.fft.fft2(gray_img)
-    h, w = img_name.shape
+    h, w = gray_img.shape
     cy, cx = int(h / 2), int(w / 2)
     rh, rw = int(kernel_size * cy), int(kernel_size * cx)
     f_src = np.fft.fftshift(f_img)
-    f_dst = np.zeros(img_name.shape, dtype=complex)
+    f_dst = np.zeros(gray_img.shape, dtype=complex)
     f_dst[cy - rh:cy + rh, cx - rw:cx + rw] = f_src[cy - rh:cy + rh, cx - rw:cx + rw]
     f_dst = np.fft.fftshift(f_dst)
     dst = np.fft.ifft2(f_dst)
