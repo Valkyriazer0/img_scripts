@@ -70,7 +70,7 @@ def blur_filter(img_name: np.ndarray, filter_type: str, kernel_size: int = 3) ->
     return result_img
 
 
-def unsharp_masking(img_name: np.ndarray) -> np.ndarray:
+def unsharp_masking(img_name: np.ndarray, kernel_size: int) -> np.ndarray:
     """
     鮮鋭化フィルタ
 
@@ -84,10 +84,9 @@ def unsharp_masking(img_name: np.ndarray) -> np.ndarray:
     result_img : np.ndarray
         処理後の画像
     """
-    kernel = np.array([[-1, -1, -1],
-                       [-1, 9, -1],
-                       [-1, -1, -1]], np.float32)
-
+    kernel = np.ones((kernel_size, kernel_size))
+    kernel = -1 * kernel
+    kernel[int(((kernel_size + 1) / 2) - 1), int(((kernel_size + 1) / 2) - 1)] = kernel_size * kernel_size
     result_img = cv2.filter2D(img_name, -1, kernel)
     return result_img
 

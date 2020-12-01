@@ -60,7 +60,7 @@ def feature_matching(src_img: np.ndarray, tmp_img: np.ndarray, feature_type: str
     return result_img
 
 
-def zncc_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
+def zncc_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> list:
     """
     ZNCC
 
@@ -79,15 +79,10 @@ def zncc_matching(src_img: np.ndarray, tmp_img: np.ndarray) -> np.ndarray:
     src_img = gray_check(src_img)
     tmp_img = gray_check(tmp_img)
 
-    h, w = tmp_img.shape
-
     match = cv2.matchTemplate(src_img, tmp_img, cv2.TM_CCOEFF_NORMED)
     min_value, max_value, min_pt, max_pt = cv2.minMaxLoc(match)
     pt = max_pt
-
-    result_img = cv2.rectangle(src_img, (pt[0], pt[1]), (pt[0] + w, pt[1] + h), (0, 0, 200), 3)
-
-    return result_img
+    return pt
 
 
 def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
@@ -98,7 +93,7 @@ def poc(src_img: np.ndarray, tmp_img: np.ndarray) -> tuple:
     ----------
     src_img : np.ndarray
         元画像
-    temp_img : np.ndarray
+    tmp_img : np.ndarray
         比較画像
 
     Return
@@ -207,3 +202,42 @@ def ripoc(src_img: np.ndarray, tmp_img: np.ndarray, r: int = None) -> tuple:
     gray_tmp_img = cv2.warpAffine(gray_tmp_img, m, (w, h))
     shift, correlation = cv2.phaseCorrelate(gray_src_img, gray_tmp_img, hw)
     return shift, angle, scale, correlation
+
+
+def img_stabilization(src_img, tmp_img):
+    """
+    手ブレ補正
+
+    Parameter
+    ----------
+    src_img : np.ndarray
+        元画像
+    tmp_img : np.ndarray
+        比較画像
+
+    Return
+    -------
+    result_img : np.ndarray
+        出力画像
+    """
+    detector = cv2.AKAZE_create()
+
+    kp1, des1 = detector.detectAndCompute(src_img, None)
+    kp2, des2 = detector.detectAndCompute(tmp_img, None)
+
+    bf = cv2.BFMatcher()
+
+    matches = bf.knnMatch(des1, des2, k=2)
+
+    ratio = 0.5
+    good_feature = []
+    for m, n in matches:
+        if m.distance < ratio * n.distance:
+            good_feature.append(m)
+
+    src_img_pt = np.float32([kp1[m.queryIdx].pt for m in good_feature]).reshape(-1, 1, 2)
+    tmp_img_pt = np.float32([kp2[m.trainIdx].pt for m in good_feature]).reshape(-1, 1, 2)
+    mat, mask = cv2.findHomography(src_img_pt, tmp_img_pt, cv2.RANSAC, 5.0)
+    result_img = cv2.warpPerspective(src_img, mat, (tmp_img.shape[1], tmp_img.shape[0]))
+    return result_img
+

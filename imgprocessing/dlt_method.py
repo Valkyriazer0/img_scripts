@@ -1,12 +1,35 @@
 """本モジュールの説明
    DLT法の計算を行う種々の関数群
 """
+import re
+
 import numpy as np
 
+from common.path import file_path_select
+from common.data import split_list
 
-def cal_dlt_para(cog_coordinate: list, marker: list = (4, 5), distance: float = 4.2, depth: float = 0.0) -> np.ndarray:
+
+def is_float(s):
     """
-    重心座標と外部パラメータからDLTパラメータの計算
+    文字列を数字に変換
+
+    Parameter
+    ----------
+    s : str
+        文字列
+    """
+    try:
+        float(s)
+    except ValueError:
+        return False
+    else:
+        return True
+
+
+def cal_dlt_para_from_cog(cog_coordinate: list, marker: list = (4, 5), distance: float = 4.2,
+                          depth: float = 0.0) -> np.ndarray:
+    """
+    重心座標と実座標からDLTパラメータの計算
 
     Parameter
     ----------
@@ -59,9 +82,62 @@ def cal_dlt_para(cog_coordinate: list, marker: list = (4, 5), distance: float = 
     return dlt_para
 
 
+def cal_dlt_para_point(target: int, uv_coordinate_path: str, real_coordinate_path: str) -> np.ndarray:
+    """
+    画像座標と実座標からDLTパラメータの計算
+
+    Parameter
+    ----------
+    target : int
+        ターゲット数
+
+    Return
+    -------
+    dlt_para : np.ndarray
+        DLTパラメータ
+    """
+    real_coordinate_list = open(real_coordinate_path, 'r', encoding='utf-8')
+    uv_coordinate_list = open(uv_coordinate_path, 'r', encoding='utf-8')
+
+    delimiter = "\t|\n"
+    real_coordinate = re.split(delimiter, real_coordinate_list.read())
+    real_coordinate = [float(s) for s in real_coordinate if is_float(s)]
+    u_mat = re.split(delimiter, uv_coordinate_list.read())
+    u_mat = [float(s) for s in u_mat if is_float(s)]
+
+    real_coordinate = list(split_list(real_coordinate, 3))
+
+    x_mat = []
+    for i in range(target):
+        x = real_coordinate[i][0]
+        y = real_coordinate[i][1]
+        z = real_coordinate[i][2]
+        u = u_mat[i]
+        v = u_mat[2 * i]
+        pre_mat = [x, y, z, 1, 0, 0, 0, 0, -u * x, -u * y, -u * z]
+        x_mat.append(pre_mat)
+        pre_mat = [0, 0, 0, 0, x, y, z, 1, -v * x, -v * y, -v * z]
+        x_mat.append(pre_mat)
+    x_mat = np.array(x_mat)
+
+    xt = x_mat.T
+    xtx = np.dot(xt, x_mat)
+    xtu = np.dot(xt, u_mat)
+    dlt_para = np.linalg.solve(xtx, xtu)
+
+    # i = np.eye(11)
+    # # 影響しない程度に小さい単位行列を足して逆行列が生成不可な場合を防ぐ
+    # xtx = xtx + 0.0001 * i
+    # xtx_inv = np.linalg.inv(xtx)
+    # xtx_inv_xt = np.dot(xtx_inv, xt)
+    # dlt_para = np.dot(xtx_inv_xt, uv_coordinate)
+
+    return dlt_para
+
+
 def dlt_method(dlt_para1: np.ndarray, dlt_para2: np.ndarray, uv1: list, uv2: list) -> np.ndarray:
     """
-    重心座標と外部パラメータからDLTパラメータの計算
+    DLTパラメータと画像座標から実座標の計算
 
     Parameter
     ----------
@@ -97,10 +173,14 @@ def dlt_method(dlt_para1: np.ndarray, dlt_para2: np.ndarray, uv1: list, uv2: lis
 
     ut = u_mat.T
     utu = np.dot(ut, u_mat)
-    i_mat = np.eye(3)
-    # 影響しない程度に小さい単位行列を足して逆行列が生成不可な場合を防ぐ
-    utu = utu + 0.0001 * i_mat
-    utu_inv = np.linalg.inv(utu)
-    utu_inv_ut = np.dot(utu_inv, ut)
-    global_coordinate = np.dot(utu_inv_ut, l_mat)
+    utl = np.dot(ut, l_mat)
+    global_coordinate = np.linalg.solve(utu, utl)
+
+    # i_mat = np.eye(3)
+    # # 影響しない程度に小さい単位行列を足して逆行列が生成不可な場合を防ぐ
+    # utu = utu + 0.0001 * i_mat
+    # utu_inv = np.linalg.inv(utu)
+    # utu_inv_ut = np.dot(utu_inv, ut)
+    # global_coordinate = np.dot(utu_inv_ut, l_mat)
+
     return global_coordinate

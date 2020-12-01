@@ -94,9 +94,9 @@ def center_of_gravity(img_name: np.ndarray, output_path: str = None) -> tuple:
 
     for c in contours:
         m = cv2.moments(c)
-        x = int(m["m10"] / m["m00"])
-        y = int(m["m01"] / m["m00"])
-        result_img = cv2.circle(img_name, (x, y), 2, (255, 0, 0), -1)
+        x = m["m10"] / m["m00"]
+        y = m["m01"] / m["m00"]
+        result_img = cv2.circle(img_name, (int(x), int(y)), 2, (255, 0, 0), -1)
         coordinate.append({"u": x, "v": y})
 
     window_config(window_name, result_img)
@@ -141,8 +141,8 @@ def roi2cof(img_name: np.ndarray, output_path: str = None):
     coordinate, contours_count = center_of_gravity(roi_img)
 
     for i in range(contours_count):
-        coordinate[i]['u'] = coordinate[i]['v'] + roi[0]
-        coordinate[i]['u'] = coordinate[i]['v'] + roi[1]
+        coordinate[i]['u'] = coordinate[i]['u'] + roi[0]
+        coordinate[i]['v'] = coordinate[i]['v'] + roi[1]
 
     if output_path is None:
         output_path = dir_path_select(0)

@@ -179,7 +179,7 @@ def trim(img_name: np.ndarray, kernel_size: int, output_path: str = None) -> np.
     height_margin = (img_name.shape[0] - height) // 2
     width_margin = (img_name.shape[1] - width) // 2
     trimming_img = img_name[height_margin:(img_name.shape[0] - height_margin),
-                            width_margin:(img_name.shape[1] - width_margin)]
+                   width_margin:(img_name.shape[1] - width_margin)]
     if output_path is not None:
         cv2.imwrite(os.path.join(str(output_path) + "/" + "trimming.png"), trimming_img)
     return trimming_img
@@ -211,3 +211,25 @@ def split(img_name: np.ndarray, kernel_size: int, output_path: str):
         time.sleep(0.01)
         cv2.imwrite(os.path.join(str(output_path) + "/" + "split{}.png".format(i)), img)
     return
+
+
+def roi(img_name: np.ndarray, roi_size: int, center_coordinate: list) -> np.ndarray:
+    """
+    中心座標を用いたROIの作成
+
+    Parameter
+    ----------
+    img_name : np.ndarray
+        入力画像
+    output_path : str
+        出力するディレクトリのパス
+
+    Return
+    -------
+    roi : np.ndarray
+        ROI画像
+    """
+    u, v = center_coordinate
+
+    roi_img = img_name[v - roi_size:v + roi_size, u - roi_size:u + roi_size]
+    return roi_img
