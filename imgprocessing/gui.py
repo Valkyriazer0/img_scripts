@@ -12,7 +12,7 @@ import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
 
 from common.path import dir_path_select
-from .preprocess import window_config
+from imgprocessing.preprocess import window_config
 
 
 def roi_select(img_name: np.ndarray, output_path: str = None) -> tuple:
@@ -144,6 +144,8 @@ def roi2cof(img_name: np.ndarray, output_path: str = None):
         coordinate[i]['u'] = coordinate[i]['u'] + roi[0]
         coordinate[i]['v'] = coordinate[i]['v'] + roi[1]
 
+    coordinate.reverse()
+
     if output_path is None:
         output_path = dir_path_select(0)
     else:
@@ -201,9 +203,15 @@ def histogram(img_name: np.ndarray, hist_type: str = "bgr"):
         hist_b = cv2.calcHist([b], [0], None, [256], [0, 256])
         hist_g = cv2.calcHist([g], [0], None, [256], [0, 256])
         hist_r = cv2.calcHist([r], [0], None, [256], [0, 256])
-        plt.plot(hist_r, color='r', label="r")
-        plt.plot(hist_g, color='g', label="g")
-        plt.plot(hist_b, color='b', label="b")
+        hist_b_normal = cv2.normalize(hist_b, hist_b, 0, 255, cv2.NORM_MINMAX)
+        hist_g_normal = cv2.normalize(hist_g, hist_g, 0, 255, cv2.NORM_MINMAX)
+        hist_r_normal = cv2.normalize(hist_r, hist_r, 0, 255, cv2.NORM_MINMAX)
+        result_hist_b = hist_b_normal.squeeze(axis=-1)
+        result_hist_g = hist_g_normal.squeeze(axis=-1)
+        result_hist_r = hist_r_normal.squeeze(axis=-1)
+        plt.plot(result_hist_r, color='r', label="r")
+        plt.plot(result_hist_g, color='g', label="g")
+        plt.plot(result_hist_b, color='b', label="b")
         plt.legend()
         plt.show()
     elif hist_type == "hsv":
@@ -212,15 +220,23 @@ def histogram(img_name: np.ndarray, hist_type: str = "bgr"):
         hist_h = cv2.calcHist([h], [0], None, [256], [0, 256])
         hist_s = cv2.calcHist([s], [0], None, [256], [0, 256])
         hist_v = cv2.calcHist([v], [0], None, [256], [0, 256])
-        plt.plot(hist_h, color='r', label="h")
-        plt.plot(hist_s, color='g', label="s")
-        plt.plot(hist_v, color='b', label="v")
+        hist_h_normal = cv2.normalize(hist_h, hist_h, 0, 255, cv2.NORM_MINMAX)
+        hist_s_normal = cv2.normalize(hist_s, hist_s, 0, 255, cv2.NORM_MINMAX)
+        hist_v_normal = cv2.normalize(hist_v, hist_v, 0, 255, cv2.NORM_MINMAX)
+        result_hist_h = hist_h_normal.squeeze(axis=-1)
+        result_hist_s = hist_s_normal.squeeze(axis=-1)
+        result_hist_v = hist_v_normal.squeeze(axis=-1)
+        plt.plot(result_hist_h, color='r', label="h")
+        plt.plot(result_hist_s, color='g', label="s")
+        plt.plot(result_hist_v, color='b', label="v")
         plt.legend()
         plt.show()
     elif hist_type == "gray":
         gray_img = cv2.cvtColor(img_name, cv2.COLOR_BGR2GRAY)
         hist_gray = cv2.calcHist([gray_img], [0], None, [256], [0, 256])
-        plt.plot(hist_gray, color='gray', label="gray")
+        hist_gray_normal = cv2.normalize(hist_gray, hist_gray, 0, 255, cv2.NORM_MINMAX)
+        result_hist_gray = hist_gray_normal.squeeze(axis=-1)
+        plt.plot(result_hist_gray, color='gray', label="gray")
         plt.show()
     else:
         sys.exit(1)
